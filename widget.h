@@ -29,7 +29,7 @@ public:
     Widget(QWidget *parent = nullptr);
     ~Widget();
 private:
-    void refresh_SerialPort();//刷新端口
+    void refreshSerialPort();//刷新端口
     void openSerialPort();//打开端口
     void closeSerialPort();//关闭端口
     void reinfos();//接收数据 return infos
