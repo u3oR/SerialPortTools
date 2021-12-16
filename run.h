@@ -2,19 +2,24 @@
 #define RUN_H
 
 #include "widget.h"
-//#include <QThread>
+#include <QThread>
+#include <QMutex>
+#include <QWaitCondition>
 
-//class Run : public QThread
-//{
-//    Q_OBJECT
+class Run : public QThread
+{
+    Q_OBJECT
 
-//public:
-//    Run(QObject *parent = nullptr);
-//    ~Run();
-//public:
 
-//private:
+public:
+    Run(QObject *parent);
+    ~Run();
+public:
+    void turnintoHex();
+    void pass();
+private:
 
-//};
+
+};
 
 #endif // RUN_H

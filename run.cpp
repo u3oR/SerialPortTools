@@ -2,20 +2,18 @@
 #include "run.h"
 #include <QThread>
 
-//Run::Run(QObject *parent) : QThread(parent){
+QT_USE_NAMESPACE
 
-//}
-//Run::~Run(){
+Run::Run(QObject *parent) : QThread(parent) {
 
-//}
+}
+Run::~Run(){
 
-//发送数据
-
-
-//接收数据
-
-
+}
+void Run::pass(){}
 
 //16进制转换
-
+void Run::turnintoHex(){
+    pass();
+}
 //

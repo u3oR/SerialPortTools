@@ -39,14 +39,14 @@ Widget::Widget(QWidget *parent)
     /*******************************************/
     auto mylayout = new QGridLayout;
     mylayout->addWidget(serialPortComboBox,1,0);
-    mylayout->addWidget(refreshButton,1,1);
+    mylayout->addWidget(refreshButton);
     mylayout->addWidget(openButton);
     mylayout->addWidget(closeButton);
     mylayout->addWidget(seinfosbutton);
     mylayout->addWidget(reinfosbutton);
     mylayout->addWidget(edinfostext,0,0);
     mylayout->addWidget(reinfostext,0,1);
-    mylayout->addWidget(statusText);
+    mylayout->addWidget(statusText,1,1);
     this->setLayout(mylayout);
     updateStatus("构建窗口完成") ;
     /*******************************************/
@@ -134,6 +134,7 @@ void Widget::closeSerialPort(){
     closeButton->setEnabled(false);
     seinfosbutton->setEnabled(false);
     reinfosbutton->setEnabled(false);
+    updateStatus("*********colsed*********");
 
 }
 //设置串口参数函数
@@ -167,4 +168,6 @@ void Widget::seinfos(){
 //更新状态信息
 void Widget::updateStatus(QString Text){
     statusText->append(Text);
+    //Run::pass();
 }
+
