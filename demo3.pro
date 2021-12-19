@@ -22,11 +22,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     main.cpp \
     run.cpp \
-    widget.cpp
+    widget.cpp \
+    #./qextserialport/qextserialport.cpp
+    #./qextserialport/qextserialport_win.cpp
+
+
 
 HEADERS += \
     run.h \
-    widget.h
+    widget.h \
+   # ./qextserialport/qextserialport.h \
+   # ./qextserialport/qextserialport_global.h \
+   # ./qextserialport/qextserialport_p.h
+
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

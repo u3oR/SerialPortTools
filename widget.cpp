@@ -13,6 +13,7 @@
 #include <QButtonGroup>
 #include <QTextCodec>
 #include <QApplication>
+//#include <qextserialport/qextserialport.h>
 //#include <QRadioButton>
 
 
@@ -83,7 +84,7 @@ Widget::Widget(QWidget *parent)
     myserialport = new QSerialPort();
     /*********************************************/
     //初始化端口参数
-
+    setSerialPort();
     /*********************************************/
 
     connect(refreshButton,&QPushButton::clicked,this,&Widget::refreshSerialPort);//刷新串口
@@ -144,7 +145,8 @@ void Widget::openSerialPort(){
         //
         setSerialPort();//设置串口参数函数
 
-        myserialport->setBaudRate(QSerialPort::Baud115200,QSerialPort::AllDirections);//设置波特率115200和读写方向
+        //myserialport->setBaudRate((BaudRateType)BaudrateBox->currentText().toInt(),QSerialPort::AllDirections);//设置波特率115200和读写方向
+        myserialport->setBaudRate(QSerialPort::Baud115200,QSerialPort::AllDirections);
         myserialport->setDataBits(QSerialPort::Data8);//数据位
         myserialport->setStopBits(QSerialPort::OneStop);//停止位
         myserialport->setParity(QSerialPort::NoParity);//校验位
@@ -172,7 +174,9 @@ void Widget::closeSerialPort(){
 }
 //设置串口参数函数
  void Widget::setSerialPort(){
-//    DatabitBox->addItems(QSerialPort::dataBits());
+    QStringList datas ;
+    datas <<"115200"<<"9600"<<"1";
+    DatabitBox->addItems(datas);
 }
 //接收数据 return infos
 void Widget::reinfos(){

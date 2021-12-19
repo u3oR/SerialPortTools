@@ -14,6 +14,7 @@
 #include <QCheckBox>
 #include <QTextCodec>
 #include <QApplication>
+//#include <qextserialport/qextserialport.h>
 
 QT_BEGIN_NAMESPACE
 
