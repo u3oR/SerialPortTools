@@ -7,6 +7,7 @@
 #include <QComboBox>
 #include <QPushButton>
 #include <QLabel>
+
 #include <QString>
 #include <QByteArray>
 #include <QRadioButton>
@@ -14,7 +15,7 @@
 #include <QCheckBox>
 #include <QTextCodec>
 #include <QApplication>
-//#include <qextserialport/qextserialport.h>
+#include <3rd_qextserialport/qextserialport.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -63,9 +64,14 @@ private:
     QTextEdit *statusText;//当前状态栏
     QCheckBox *HexseCheck;
     QCheckBox *HexreCheck;
+    /***************************/
+    QLabel *Baudratelabel;
     QComboBox *BaudrateBox;//波特率
+    QLabel *Databitlabel;
     QComboBox *DatabitBox; //数据位
+    QLabel *Stopbitlabel;
     QComboBox *StopbitBox; //停止位
+    QLabel *CheckDigitlabel;
     QComboBox *CheckDigitBox; //校验位
 //, cledtextbutton(new QPushButton(tr("清除发送窗口")))
 //, clretextbutton(new QPushButton(tr("清除接收窗口")))

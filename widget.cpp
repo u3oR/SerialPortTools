@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QTextEdit>
 #include <QGridLayout>
+#include <QFormLayout>
 #include <QSerialPortInfo>
 #include <QSerialPort>
 #include <QDebug>
@@ -13,7 +14,7 @@
 #include <QButtonGroup>
 #include <QTextCodec>
 #include <QApplication>
-//#include <qextserialport/qextserialport.h>
+#include <3rd_qextserialport/qextserialport.h>
 //#include <QRadioButton>
 
 
@@ -32,9 +33,13 @@ Widget::Widget(QWidget *parent)
     , HexreCheck(new QCheckBox(tr("以16进制显示")))
 //    , cledtextbutton(new QPushButton(tr("清除发送窗口")))
 //    , clretextbutton(new QPushButton(tr("清除接收窗口")))
+    , Baudratelabel(new QLabel(tr("波特率")))
     , BaudrateBox(new QComboBox()) //波特率
+    , Databitlabel(new QLabel(tr("数据位")))
     , DatabitBox(new QComboBox()) //数据位
+    , Stopbitlabel(new QLabel(tr("停止位")))
     , StopbitBox(new QComboBox()) //停止位
+    , CheckDigitlabel(new QLabel(tr("校验位")))
     , CheckDigitBox(new QComboBox()) //校验位
 //    Baud rate 波特率
 //    Data bit  数据位
@@ -54,22 +59,50 @@ Widget::Widget(QWidget *parent)
 
     /*******************************************/
     auto mylayout = new QGridLayout;
-    mylayout->addWidget(serialPortComboBox,1,0);
-    mylayout->addWidget(refreshButton);
-    mylayout->addWidget(openButton);
-    mylayout->addWidget(closeButton);
-    mylayout->addWidget(seinfosbutton);
-    mylayout->addWidget(reinfosbutton);
-    mylayout->addWidget(edinfostext,0,0);
-    mylayout->addWidget(reinfostext,0,1);
-    mylayout->addWidget(statusText,1,1);
-    mylayout->addWidget(HexseCheck);
-    mylayout->addWidget(HexreCheck);
+
+
+    /****************************/
+    auto portVBox = new QVBoxLayout;
+    auto portlayout = new QFormLayout;
+    portlayout->addRow("⚫端口",serialPortComboBox);
+    portlayout->addRow("波特率",BaudrateBox);
+    portlayout->addRow("数据位",DatabitBox);
+    portlayout->addRow("停止位",StopbitBox);
+    portlayout->addRow("校验位",CheckDigitBox);
+    portVBox->addLayout(portlayout);
+    portVBox->addWidget(refreshButton);
+    portVBox->addWidget(openButton);
+    portVBox->addWidget(closeButton);
+    portVBox->addWidget(reinfosbutton);
+    portVBox->addWidget(seinfosbutton);
+
+    /*******/
+
+//    portlayout->addWidget(Baudratelabel);
+//    portlayout->addWidget(BaudrateBox);
+//    portlayout->addWidget(Databitlabel);
+//    portlayout->addWidget(DatabitBox);
+//    portlayout->addWidget(Stopbitlabel);
+//    portlayout->addWidget(StopbitBox);
+//    portlayout->addWidget(CheckDigitlabel);
+//    portlayout->addWidget(CheckDigitBox);
+    /****************************/
+
+    mylayout->addWidget(reinfostext,0,0,7,12);
+    mylayout->addWidget(statusText,7,0,9,3);
+    mylayout->addWidget(edinfostext,7,3,9,9);
+    mylayout->addLayout(portVBox,0,12,8,4);
+//    mylayout->addLayout(portlayout,0,1);
+
+//
+
+
+
+
+//    mylayout->addWidget(HexseCheck);
+//    mylayout->addWidget(HexreCheck);
     //端口参数
-    mylayout->addWidget(BaudrateBox);
-    mylayout->addWidget(DatabitBox);
-    mylayout->addWidget(StopbitBox);
-    mylayout->addWidget(CheckDigitBox);
+
     this->setLayout(mylayout);
     updateStatus("构建窗口完成") ;
     /*******************************************/

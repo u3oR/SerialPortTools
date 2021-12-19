@@ -40,4 +40,7 @@ HEADERS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 
+#包含第三方串口库
+include(3rd_qextserialport/3rd_qextserialport.pri)
+
 !isEmpty(target.path): INSTALLS += target
