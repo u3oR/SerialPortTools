@@ -6,20 +6,20 @@
 #include <QMutex>
 #include <QWaitCondition>
 
-class Run : public QThread
-{
-    Q_OBJECT
+//class Run : public QThread
+//{
+//    Q_OBJECT
 
 
-public:
-    Run(QObject *parent);
-    ~Run();
-public:
-    void turnintoHex();
-    void pass();
-private:
+//public:
+//    Run(QObject *parent);
+//    ~Run();
+//public:
+//    void turnintoHex();
+//    void pass();
+//private:
 
 
-};
+//};
 
 #endif // RUN_H

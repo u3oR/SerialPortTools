@@ -4,16 +4,16 @@
 
 QT_USE_NAMESPACE
 
-Run::Run(QObject *parent) : QThread(parent) {
+//Run::Run(QObject *parent) : QThread(parent) {
 
-}
-Run::~Run(){
+//}
+//Run::~Run(){
 
-}
-void Run::pass(){}
+//}
+//void Run::pass(){}
 
-//16进制转换
-void Run::turnintoHex(){
-    pass();
-}
-//
+////16进制转换
+//void Run::turnintoHex(){
+
+//    pass();
+//}

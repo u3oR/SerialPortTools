@@ -8,6 +8,12 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QString>
+#include <QByteArray>
+#include <QRadioButton>
+#include <QButtonGroup>
+#include <QCheckBox>
+#include <QTextCodec>
+#include <QApplication>
 
 QT_BEGIN_NAMESPACE
 
@@ -17,6 +23,9 @@ class QLabel;
 class QPushButton;
 class QComboBox;
 class QTextEdit;
+class QRadioButton;
+class Run;
+class QTextCodec;
 
 QT_END_NAMESPACE
 
@@ -36,6 +45,9 @@ private:
     void seinfos();//发送数据 send infos
     void updateStatus(QString Text);//更新数据
     void setSerialPort();
+    QString ChineseEnable(QByteArray source);
+    QByteArray StrtoHex(QByteArray);
+    QByteArray HextoStr(QByteArray);
 private:
     QSerialPort *myserialport;//端口指针
 private:
@@ -48,6 +60,12 @@ private:
     QPushButton *seinfosbutton;
     QPushButton *reinfosbutton;
     QTextEdit *statusText;//当前状态栏
+    QCheckBox *HexseCheck;
+    QCheckBox *HexreCheck;
+    QComboBox *BaudrateBox;//波特率
+    QComboBox *DatabitBox; //数据位
+    QComboBox *StopbitBox; //停止位
+    QComboBox *CheckDigitBox; //校验位
 //, cledtextbutton(new QPushButton(tr("清除发送窗口")))
 //, clretextbutton(new QPushButton(tr("清除接收窗口")))
 
