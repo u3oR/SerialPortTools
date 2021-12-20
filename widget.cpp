@@ -270,4 +270,3 @@ QString Widget::ChineseEnable(QByteArray source){
     //
 }
 
-void *ptr = nullptr;
