@@ -8,6 +8,10 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
 
+#包含第三方串口库 (后面发现根本用不到，官方的库目前看来已经够用了)
+#include(3rd_qextserialport/3rd_qextserialport.pri)
+
+
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
@@ -40,7 +44,5 @@ HEADERS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 
-#包含第三方串口库
-include(3rd_qextserialport/3rd_qextserialport.pri)
 
 !isEmpty(target.path): INSTALLS += target
