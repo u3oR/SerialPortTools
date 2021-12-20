@@ -76,14 +76,16 @@ Widget::Widget(QWidget *parent)
     /******************************/
     /**********窗口布局***********/
     mylayout->addWidget(reinfostext,0,0,7,12);
-    mylayout->addWidget(statusText,7,0,9,2);
-    mylayout->addWidget(edinfostext,7,2,9,10);
     mylayout->addLayout(portVBox,0,12,7,4);
     mylayout->addLayout(CtrlVBox,7,12,9,4);
-    mylayout->addLayout(clrHBox,16,0,1,2);
+    mylayout->addLayout(clrHBox,7,0,1,2);//
+    mylayout->addWidget(statusText,8,0,9,2);
+    mylayout->addWidget(edinfostext,8,2,9,10);
+
+//    mylayout->addLayout(clrHBox,16,0,1,2);
     /****************************/
 //    mylayout->addWidget(HexseCheck);
-//    mylayout->addWidget(HexreCheck);
+    mylayout->addWidget(HexreCheck);
 
     this->setLayout(mylayout);
     updateStatus("构建窗口完成") ;
@@ -95,7 +97,7 @@ Widget::Widget(QWidget *parent)
     closeButton->setEnabled(false);
     reinfosbutton->setEnabled(false);
     seinfosbutton->setEnabled(false);
-    reinfostext->setReadOnly(false);
+    reinfostext->setReadOnly(true);
 
     myserialport = new QSerialPort();
 
@@ -108,8 +110,6 @@ Widget::Widget(QWidget *parent)
     connect(clrstatusbutton,&QPushButton::clicked,this,&Widget::clrStatus);
     connect(clrrebutton,&QPushButton::clicked,this,&Widget::clrreinfos);
     connect(clrsebutton,&QPushButton::clicked,this,&Widget::clrseinfos);
-
-    //connect(HexseCheck,&QCheckBox::checkState(false),this,&Widget::seinfos);
 
 }
 Widget::~Widget(){
@@ -150,8 +150,14 @@ void Widget::openSerialPort(){
 
         openButton->setEnabled(false);
         closeButton->setEnabled(true);
+        refreshButton->setEnabled(false);
         reinfosbutton->setEnabled(true);
         seinfosbutton->setEnabled(true);
+        serialPortComboBox->setEnabled(false);
+        BaudrateBox->setEnabled(false);
+        DatabitBox->setEnabled(false);
+        StopbitBox->setEnabled(false);
+        CheckDigitBox->setEnabled(false);
 
         //设置串口参数
         updateStatus("设置串口参数...");
@@ -159,7 +165,8 @@ void Widget::openSerialPort(){
         myserialport->setDataBits((QSerialPort::DataBits)DatabitBox->currentText().toInt());//数据位
         myserialport->setStopBits((QSerialPort::StopBits)StopbitBox->currentIndex());//停止位
         myserialport->setParity((QSerialPort::Parity)CheckDigitBox->currentIndex());//校验位
-        updateStatus("波特率\""+BaudrateBox->currentText()+"\"\n数据位\""+DatabitBox->currentText()+"\"\n停止位\""+StopbitBox->currentText()+"\"\n检验位\""+CheckDigitBox->currentText()+"\"");
+        updateStatus("波特率\""+BaudrateBox->currentText()+"\"\n数据位\""+DatabitBox->currentText()+ \
+                    "\"\n停止位\""+StopbitBox->currentText()+"\"\n检验位\""+CheckDigitBox->currentText()+"\"");
         updateStatus("设置串口参数完毕");
     }
     else{
@@ -174,6 +181,13 @@ void Widget::closeSerialPort(){
     closeButton->setEnabled(false);
     seinfosbutton->setEnabled(false);
     reinfosbutton->setEnabled(false);
+    refreshButton->setEnabled(true);
+
+    serialPortComboBox->setEnabled(true);
+    BaudrateBox->setEnabled(true);
+    DatabitBox->setEnabled(true);
+    StopbitBox->setEnabled(true);
+    CheckDigitBox->setEnabled(true);
     updateStatus("*********colsed*********");
 
 }
