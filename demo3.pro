@@ -25,7 +25,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     main.cpp \
-    run.cpp \
+#    run.cpp \
     widget.cpp \
     #./qextserialport/qextserialport.cpp
     #./qextserialport/qextserialport_win.cpp
@@ -33,7 +33,7 @@ SOURCES += \
 
 
 HEADERS += \
-    run.h \
+#    run.h \
     widget.h \
    # ./qextserialport/qextserialport.h \
    # ./qextserialport/qextserialport_global.h \
