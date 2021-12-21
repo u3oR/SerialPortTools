@@ -14,6 +14,7 @@
 #include <QButtonGroup>
 #include <QTextCodec>
 #include <QApplication>
+#include <QTime>
 //#include <3rd_qextserialport/qextserialport.h>
 //#include <QRadioButton>
 
@@ -28,8 +29,8 @@ Widget::Widget(QWidget *parent)
     , edinfostext(new QTextEdit(tr("发送框")))
     , seinfosbutton(new QPushButton(tr("发送")))
     , reinfosbutton(new QPushButton(tr("接收")))
-    , statusText(new QTextEdit("Status:"))
-    , clrstatusbutton(new QPushButton(tr("清空状态栏")))
+    , statusText(new QLabel("Status:"))
+//    , clrstatusbutton(new QPushButton(tr("清空状态栏")))
     , clrsebutton(new QPushButton(tr("清空发送框")))
     , clrrebutton(new QPushButton(tr("清空接收框")))
     , HexseCheck(new QCheckBox(tr("以16进制发送")))
@@ -40,11 +41,10 @@ Widget::Widget(QWidget *parent)
     , CheckDigitBox(new QComboBox()) //校验位
 
 {
-    updateStatus("构建窗口...");
     //Qt如何设置界面风格？
     //https://www.zhihu.com/question/26241920
     //
-    this->setWindowTitle("Serial Port Tool");
+    this->setWindowTitle("SerialPortTool");
     //固定窗口大小
     this->setMinimumSize(757,468);
     this->setMaximumSize(757,468);
@@ -53,51 +53,49 @@ Widget::Widget(QWidget *parent)
     /*********端口参数布局***********/
     auto portVBox = new QVBoxLayout;
     auto portlayout = new QFormLayout;
+    portVBox->addWidget(closeButton);
+    portVBox->addWidget(refreshButton);
     portlayout->addRow("⚫串口",serialPortComboBox);
     portlayout->addRow("波特率",BaudrateBox);
     portlayout->addRow("数据位",DatabitBox);
     portlayout->addRow("停止位",StopbitBox);
     portlayout->addRow("校验位",CheckDigitBox);
     portVBox->addLayout(portlayout);
-    portVBox->addWidget(refreshButton);
     portVBox->addWidget(openButton);
-    portVBox->addWidget(closeButton);
-    /****************************/
     /**********控制控件布局***********/
-    auto CtrlVBox = new QVBoxLayout;
-    CtrlVBox->addWidget(reinfosbutton);
-    CtrlVBox->addWidget(seinfosbutton);
-    /******************************/
+    auto CtrlVBox1 = new QVBoxLayout;
+    CtrlVBox1->addWidget(reinfosbutton);
+    CtrlVBox1->addWidget(seinfosbutton);
     /***********清除按钮布局**********/
-    auto clrHBox =new QHBoxLayout;
-    clrHBox->addWidget(clrstatusbutton);
-    clrHBox->addWidget(clrrebutton);
-    clrHBox->addWidget(clrsebutton);
-    /******************************/
-    /**********窗口布局***********/
-    mylayout->addWidget(reinfostext,0,0,7,12);
-    mylayout->addLayout(portVBox,0,12,7,4);
-    mylayout->addLayout(CtrlVBox,7,12,9,4);
-    mylayout->addLayout(clrHBox,7,0,1,2);//
-    mylayout->addWidget(statusText,8,0,9,2);
-    mylayout->addWidget(edinfostext,8,2,9,10);
+    auto CtrlVBox2 =new QVBoxLayout;
+//  CtrlVBox2->addWidget(clrstatusbutton);
+    CtrlVBox2->addWidget(clrrebutton);
+    CtrlVBox2->addWidget(clrsebutton);
 
-//    mylayout->addLayout(clrHBox,16,0,1,2);
+    /**********主窗口布局***********/
+    mylayout->addWidget(reinfostext,0,0,9,12);//接收框
+    mylayout->addLayout(portVBox,0,12,9,4);//串口参数
+    mylayout->addWidget(edinfostext,9,0,5,10);//编辑框
+    mylayout->addLayout(CtrlVBox1,9,13,7,3);//发送和接受按钮
+    mylayout->addLayout(CtrlVBox2,9,10,7,3);
+    mylayout->addWidget(statusText,15,0,1,10);//状态栏
+
+
     /****************************/
 //    mylayout->addWidget(HexseCheck);
-    mylayout->addWidget(HexreCheck);
+//    mylayout->addWidget(HexreCheck);
 
     this->setLayout(mylayout);
-    updateStatus("构建窗口完成") ;
+//    updateStatus("构建窗口完成") ;
     /*******************************************/
 
     refreshSerialPort();//首次刷新串口信息
     setSerialPort();//初始化串口参数
-    statusText->setReadOnly(true);
+//    statusText->setReadOnly(true);
     closeButton->setEnabled(false);
     reinfosbutton->setEnabled(false);
     seinfosbutton->setEnabled(false);
-    reinfostext->setReadOnly(true);
+//    reinfostext->setReadOnly(true);
 
     myserialport = new QSerialPort();
 
@@ -107,7 +105,7 @@ Widget::Widget(QWidget *parent)
     connect(closeButton,&QPushButton::clicked,this,&Widget::closeSerialPort);//关闭打开的端口
     connect(reinfosbutton,&QPushButton::clicked,this,&Widget::reinfos);//关联<接收>按钮和<接收数据>函数
     connect(seinfosbutton,&QPushButton::clicked,this,&Widget::seinfos);//关联<发送>按钮和<发送数据>函数
-    connect(clrstatusbutton,&QPushButton::clicked,this,&Widget::clrStatus);
+//    connect(clrstatusbutton,&QPushButton::clicked,this,&Widget::clrStatus);
     connect(clrrebutton,&QPushButton::clicked,this,&Widget::clrreinfos);
     connect(clrsebutton,&QPushButton::clicked,this,&Widget::clrseinfos);
 
@@ -124,14 +122,14 @@ Widget::~Widget(){
 void Widget::refreshSerialPort(){
 
     serialPortComboBox->clear();//清楚列表信息
-    updateStatus("尝试获取串口列表...");
+//    updateStatus("获取串口列表...");
 
     const auto infos = QSerialPortInfo::availablePorts();
     for (const QSerialPortInfo & info: infos) {
         serialPortComboBox->addItem(info.portName());
-        updateStatus("正在加载串口"+info.portName()+"...");
+//        updateStatus("正在加载串口"+info.portName()+"...");
     }
-    updateStatus("获取完成");
+    updateStatus("更新串口列表完成");
 }
 //打开端口
 void Widget::openSerialPort(){
@@ -140,13 +138,13 @@ void Widget::openSerialPort(){
         myserialport->close();
     }
     //问题2：myserialport仅设置了名字就能够代表串口？
-    updateStatus("尝试打开串口...");
+    updateStatus("打开串口\""+myserialport->portName()+"\"...");
     myserialport->setPortName(serialPortComboBox->currentText());
 
     //https://doc.qt.io/qt-5/qserialport.html#open
     //open()使用OpenMode模式打开串口，成功则返回true,否则返回 false 并设置错误代码...
     if(myserialport->open(QIODevice::ReadWrite)){ //打开方式：读写
-        updateStatus("打开串口"+myserialport->portName()+"成功");
+        updateStatus("已打开"+myserialport->portName());
 
         openButton->setEnabled(false);
         closeButton->setEnabled(true);
@@ -160,14 +158,14 @@ void Widget::openSerialPort(){
         CheckDigitBox->setEnabled(false);
 
         //设置串口参数
-        updateStatus("设置串口参数...");
+//        updateStatus("设置串口参数...");
         myserialport->setBaudRate((QSerialPort::BaudRate)BaudrateBox->currentText().toInt(),QSerialPort::AllDirections);
         myserialport->setDataBits((QSerialPort::DataBits)DatabitBox->currentText().toInt());//数据位
         myserialport->setStopBits((QSerialPort::StopBits)StopbitBox->currentIndex());//停止位
         myserialport->setParity((QSerialPort::Parity)CheckDigitBox->currentIndex());//校验位
-        updateStatus("波特率\""+BaudrateBox->currentText()+"\"\n数据位\""+DatabitBox->currentText()+ \
-                    "\"\n停止位\""+StopbitBox->currentText()+"\"\n检验位\""+CheckDigitBox->currentText()+"\"");
-        updateStatus("设置串口参数完毕");
+        /*updateStatus("波特率\""+BaudrateBox->currentText()+"\"\n数据位\""+DatabitBox->currentText()+ \
+                    "\"\n停止位\""+StopbitBox->currentText()+"\"\n检验位\""+CheckDigitBox->currentText()+"\"");*/
+//        updateStatus("设置串口参数完毕");
     }
     else{
         updateStatus("打开串口"+myserialport->portName()+"失败");
@@ -188,7 +186,7 @@ void Widget::closeSerialPort(){
     DatabitBox->setEnabled(true);
     StopbitBox->setEnabled(true);
     CheckDigitBox->setEnabled(true);
-    updateStatus("*********colsed*********");
+    updateStatus("Colsed");
 
 }
 //设置串口参数函数
@@ -218,6 +216,7 @@ void Widget::closeSerialPort(){
 void Widget::reinfos(){
     QString infos = ChineseEnable(myserialport->readAll());//读取端口数据
     //处理数据
+    updateStatus("接收数据...");
     if(HexreCheck->isChecked()){
         //qstring需要先转成qbytearray之后才能再转成16进制
         reinfostext->append(infos.toLatin1().toHex());//设置reinfoslabel文本 16Hex
@@ -229,7 +228,8 @@ void Widget::reinfos(){
 // 发送数据 send infos
 void Widget::seinfos(){
     QString readysendinfos = edinfostext->toPlainText();//读取编辑文本框的内容
-    updateStatus("正在发送数据\""+readysendinfos+"\"");
+    updateStatus("发送数据...");
+//    updateStatus("发送数据\""+readysendinfos+"\"");
     //处理数据
     //...
     //发送数据
@@ -244,13 +244,14 @@ void Widget::seinfos(){
 }
 //更新状态信息
 void Widget::updateStatus(QString Text){
-    statusText->append(Text);
+    QString currentTime = QDateTime::currentDateTime().toString("[yyyy.MM.dd hh:mm:ss:zzz]");
+    statusText->setText("Status:"+currentTime+Text);
 }
 //清空状态信息
-void Widget::clrStatus(){
+/*void Widget::clrStatus(){
     statusText->clear();
-    statusText->append("Status:");
-}
+    statusText->setText("Status:");
+}*/
 void Widget::clrseinfos(){
     edinfostext->clear();
     edinfostext->append("发送框");

@@ -15,6 +15,7 @@
 #include <QCheckBox>
 #include <QTextCodec>
 #include <QApplication>
+#include <QTime>
 //#include <3rd_qextserialport/qextserialport.h>
 
 QT_BEGIN_NAMESPACE
@@ -64,8 +65,8 @@ private:
     QTextEdit *edinfostext;
     QPushButton *seinfosbutton;
     QPushButton *reinfosbutton;
-    QTextEdit *statusText;//当前状态栏
-    QPushButton *clrstatusbutton;//清空状态框
+    QLabel *statusText;//当前状态栏
+//    QPushButton *clrstatusbutton;//清空状态框
     QPushButton *clrsebutton;
     QPushButton *clrrebutton;
     QCheckBox *HexseCheck;
