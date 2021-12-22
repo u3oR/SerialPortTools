@@ -70,10 +70,11 @@ Widget::Widget(QWidget *parent)
     /***********控制按钮布局**********/
     auto CtrlVBox1 =new QVBoxLayout;
 //  CtrlVBox1->addWidget(clrstatusbutton);
-    CtrlVBox1->addWidget(clrrebutton);
-    CtrlVBox1->addWidget(clrsebutton);
     CtrlVBox1->addWidget(HexreCheck);
     CtrlVBox1->addWidget(HexseCheck);
+    CtrlVBox1->addWidget(clrrebutton);
+    CtrlVBox1->addWidget(clrsebutton);
+
 
     /**********主窗口布局***********/
     mylayout->addWidget(reinfostext,0,0,9,12);//接收框
@@ -107,12 +108,15 @@ Widget::Widget(QWidget *parent)
     connect(closeButton,&QPushButton::clicked,this,&Widget::closeSerialPort);//关闭打开的端口
     connect(reinfosbutton,&QPushButton::clicked,this,&Widget::reinfos);//关联<接收>按钮和<接收数据>函数
     connect(seinfosbutton,&QPushButton::clicked,this,&Widget::seinfos);//关联<发送>按钮和<发送数据>函数
-//    connect(clrstatusbutton,&QPushButton::clicked,this,&Widget::clrStatus);
+
     connect(clrrebutton,&QPushButton::clicked,this,&Widget::clrreinfos);
     connect(clrsebutton,&QPushButton::clicked,this,&Widget::clrseinfos);
-    connect(HexseCheck,&QCheckBox::stateChanged,this,&Widget::seinfostoHex);
+    connect(HexseCheck,&QCheckBox::stateChanged,this,&Widget::Hexseinfos);
+    connect(HexreCheck,&QCheckBox::stateChanged,this,&Widget::Hexreinfos);
+//    connect(HexreCheck,&QCheckBox::stateChanged,this,&Widget::Hexinfos(HexreCheck,reinfostext));
 
 }
+//窗口关闭
 Widget::~Widget(){
     //问题1：如果没有下面的语句，关闭程序后串口还会被占用吗
     if (myserialport->isOpen()){
@@ -120,7 +124,6 @@ Widget::~Widget(){
     }
     delete myserialport;
 }
-
 //刷新端口
 void Widget::refreshSerialPort(){
 
@@ -215,39 +218,58 @@ void Widget::closeSerialPort(){
     StopbitBox->setCurrentText("1");
     CheckDigitBox->setCurrentText("无");
 }
-QByteArray Widget::StrtoHex(QByteArray str){
- return str.toHex();
+
+//接收框的16进制转换
+void Widget::Hexreinfos(){
+ QByteArray strinfos = reinfostext->toPlainText().toLatin1();
+ if(HexreCheck->isChecked()){
+     reinfostext->setText(strinfos.toHex(' ').toUpper());
+ }else{
+     //把接收框的16进制数据转成普通文本
+     reinfostext->setText(QByteArray::fromHex(strinfos));
+ }
 }
-QByteArray Widget::HextoStr(QByteArray hex){
- QByteArray str = QByteArray::fromHex(hex);
- return str;
+//发送框的16进制转换
+void Widget::Hexseinfos(){
+ QByteArray strinfos = edinfostext->toPlainText().toLatin1();
+ if(HexseCheck->isChecked()){
+     edinfostext->setText(strinfos.toHex(' ').toUpper());
+ }else{
+     //把编辑框的16进制数据转成普通文本
+     edinfostext->setText(QByteArray::fromHex(strinfos));
+ }
 }
-//接收数据 return infos
+/*
+void Widget::Hexinfos(QCheckBox *Check,QTextEdit *Text){
+    QByteArray infos = Text->toPlainText().toLatin1();
+    if(Check->isChecked()){
+        Text->setText(infos.toHex(' ').toUpper());
+    }else{
+        Text->setText(QByteArray::fromHex(infos));
+    }
+}
+*/
+
+//接收数据
 void Widget::reinfos(){
-    QString infos = ChineseEnable(myserialport->readAll());//读取端口数据
+    QByteArray infos = myserialport->readAll();//读取端口数据
     //处理数据
     updateStatus("接收数据...");
     if(HexreCheck->isChecked()){
-        //qstring需要先转成qbytearray之后才能再转成16进制
-        reinfostext->append(infos.toLatin1().toHex(' ').toUpper());//设置reinfoslabel文本 16Hex
+        reinfostext->setText(infos.toHex(' ').toUpper());//设置reinfoslabel文本 16Hex
     }else{
-        reinfostext->append(infos);//设置reinfoslabel文本 Str
+        reinfostext->setText(infos);//设置reinfoslabel文本 Str
     }
-
 }
-void Widget::seinfostoHex(){
-    if(HexseCheck->isChecked()){
-        QString strinfos = edinfostext->toPlainText();
-        edinfostext->setText(strinfos.toLatin1().toHex());
-    }else{
-
-    }
-
-}
-// 发送数据 send infos
+// 发送数据
 void Widget::seinfos(){
-    QString readysendinfos = edinfostext->toPlainText();//读取编辑文本框的内容
+    QByteArray readysendinfos = edinfostext->toPlainText().toLatin1();//读取编辑文本框的内容
     updateStatus("发送数据...");
+    if(HexseCheck->isChecked()){
+        myserialport->write(QByteArray::fromHex(readysendinfos));
+    }else{
+        myserialport->write(readysendinfos);
+    }
 //    updateStatus("发送数据\""+readysendinfos+"\"");
     //处理数据
     //...
@@ -255,12 +277,8 @@ void Widget::seinfos(){
     //write() 参考文档：https://blog.csdn.net/qq_16093323/article/details/79556807
     //qint64 QIODevice::write(const QByteArray &byteArray)
     //(QString).toLatin1方法的作用是将QString转换到QByteArray类型
-    if(HexseCheck->isChecked()){
-        myserialport->write(readysendinfos.toLatin1().toHex());
-    }else{
-        myserialport->write(readysendinfos.toLatin1());
-    }
 }
+
 //更新状态信息
 void Widget::updateStatus(QString Text){
     QString currentTime = QDateTime::currentDateTime().toString("[yyyy.MM.dd hh:mm:ss:zzz]");
@@ -280,10 +298,11 @@ void Widget::clrreinfos(){
     reinfostext->append("接收框");
 }
 
-QString Widget::ChineseEnable(QByteArray source){
-    QString str;
+//Chinese
+QByteArray Widget::ChineseEnable(QByteArray source){
+    QByteArray str;
     QTextCodec *coding = QTextCodec::codecForName("GBK");
-    str =coding->toUnicode(source);
+    str =coding->toUnicode(source).toLatin1();
     return str;
     //
     //QByteArray显示中文
