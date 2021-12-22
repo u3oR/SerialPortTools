@@ -7,7 +7,6 @@
 #include <QComboBox>
 #include <QPushButton>
 #include <QLabel>
-
 #include <QString>
 #include <QByteArray>
 #include <QRadioButton>
@@ -41,16 +40,16 @@ public:
     Widget(QWidget *parent = nullptr);
     ~Widget();
 private:
-    void refreshSerialPort();//刷新端口
-    void openSerialPort();//打开端口
-    void closeSerialPort();//关闭端口
-    void reinfos();//接收数据 return infos
-    void seinfos();//发送数据 send infos
-    void updateStatus(QString Text);//更新数据
-    void clrStatus();//清除状态栏数据
-    void clrreinfos();
-    void clrseinfos();
-    void setSerialPort();
+    void RefreshPort();//刷新端口
+    void OpenPort();//打开端口
+    void ClosePort();//关闭端口
+    void Reinfos();//接收数据 return infos
+    void Seinfos();//发送数据 send infos
+    void UpdateStatus(QString Text);//更新数据
+    void ClrStatus();//清除状态栏数据
+    void Clrreinfos();
+    void Clrseinfos();
+    void SetPort();
     void Hexseinfos();
     void Hexreinfos();
     void Hexinfos(QCheckBox *Check,QTextEdit *Text);
@@ -59,8 +58,9 @@ private:
     QByteArray HextoStr(QByteArray);
 private:
     QSerialPort *myserialport;//端口指针
+    QTextCodec *coding;
 private:
-    QComboBox *serialPortComboBox;
+    QComboBox *COMcBox;
     QPushButton *refreshButton;
     QPushButton *openButton;
     QPushButton *closeButton;
