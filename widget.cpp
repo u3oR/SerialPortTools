@@ -45,6 +45,7 @@ Widget::Widget(QWidget *parent)
     //https://www.zhihu.com/question/26241920
     //
     this->setWindowTitle("SerialPortTool");
+//    setWindowIcon(QIcon("./logo.png"));
     //固定窗口大小
     this->setMinimumSize(757,468);
     this->setMaximumSize(757,468);
