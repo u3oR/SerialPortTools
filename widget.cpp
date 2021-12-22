@@ -63,28 +63,29 @@ Widget::Widget(QWidget *parent)
     portlayout->addRow("校验位",CheckDigitBox);
     portVBox->addLayout(portlayout);
     portVBox->addWidget(openButton);
-    /**********控制控件布局***********/
-    auto CtrlVBox1 = new QVBoxLayout;
-    CtrlVBox1->addWidget(reinfosbutton);
-    CtrlVBox1->addWidget(seinfosbutton);
-    /***********清除按钮布局**********/
-    auto CtrlVBox2 =new QVBoxLayout;
-//  CtrlVBox2->addWidget(clrstatusbutton);
-    CtrlVBox2->addWidget(clrrebutton);
-    CtrlVBox2->addWidget(clrsebutton);
+    /**********发送接收控件布局***********/
+    auto CtrlVBox2 = new QVBoxLayout;
+    CtrlVBox2->addWidget(reinfosbutton);
+    CtrlVBox2->addWidget(seinfosbutton);
+    /***********控制按钮布局**********/
+    auto CtrlVBox1 =new QVBoxLayout;
+//  CtrlVBox1->addWidget(clrstatusbutton);
+    CtrlVBox1->addWidget(clrrebutton);
+    CtrlVBox1->addWidget(clrsebutton);
+    CtrlVBox1->addWidget(HexreCheck);
+    CtrlVBox1->addWidget(HexseCheck);
 
     /**********主窗口布局***********/
     mylayout->addWidget(reinfostext,0,0,9,12);//接收框
     mylayout->addLayout(portVBox,0,12,9,4);//串口参数
     mylayout->addWidget(edinfostext,9,0,5,10);//编辑框
-    mylayout->addLayout(CtrlVBox1,9,13,7,3);//发送和接受按钮
-    mylayout->addLayout(CtrlVBox2,9,10,7,3);
+    mylayout->addLayout(CtrlVBox1,9,13,7,3);//控制控件
+    mylayout->addLayout(CtrlVBox2,9,10,7,3);//发送和接受按钮
     mylayout->addWidget(statusText,15,0,1,10);//状态栏
 
 
     /****************************/
-//    mylayout->addWidget(HexseCheck);
-//    mylayout->addWidget(HexreCheck);
+
 
     this->setLayout(mylayout);
 //    updateStatus("构建窗口完成") ;
@@ -109,6 +110,7 @@ Widget::Widget(QWidget *parent)
 //    connect(clrstatusbutton,&QPushButton::clicked,this,&Widget::clrStatus);
     connect(clrrebutton,&QPushButton::clicked,this,&Widget::clrreinfos);
     connect(clrsebutton,&QPushButton::clicked,this,&Widget::clrseinfos);
+    connect(HexseCheck,&QCheckBox::stateChanged,this,&Widget::seinfostoHex);
 
 }
 Widget::~Widget(){
@@ -213,6 +215,13 @@ void Widget::closeSerialPort(){
     StopbitBox->setCurrentText("1");
     CheckDigitBox->setCurrentText("无");
 }
+QByteArray Widget::StrtoHex(QByteArray str){
+ return str.toHex();
+}
+QByteArray Widget::HextoStr(QByteArray hex){
+ QByteArray str = QByteArray::fromHex(hex);
+ return str;
+}
 //接收数据 return infos
 void Widget::reinfos(){
     QString infos = ChineseEnable(myserialport->readAll());//读取端口数据
@@ -220,9 +229,18 @@ void Widget::reinfos(){
     updateStatus("接收数据...");
     if(HexreCheck->isChecked()){
         //qstring需要先转成qbytearray之后才能再转成16进制
-        reinfostext->append(infos.toLatin1().toHex());//设置reinfoslabel文本 16Hex
+        reinfostext->append(infos.toLatin1().toHex(' ').toUpper());//设置reinfoslabel文本 16Hex
     }else{
         reinfostext->append(infos);//设置reinfoslabel文本 Str
+    }
+
+}
+void Widget::seinfostoHex(){
+    if(HexseCheck->isChecked()){
+        QString strinfos = edinfostext->toPlainText();
+        edinfostext->setText(strinfos.toLatin1().toHex());
+    }else{
+
     }
 
 }
@@ -262,14 +280,6 @@ void Widget::clrreinfos(){
     reinfostext->append("接收框");
 }
 
-QByteArray Widget::StrtoHex(QByteArray str){
-    return str.toHex();
-}
-QByteArray Widget::HextoStr(QByteArray hex){
-    QByteArray str = QByteArray::fromHex(hex);
-    return str;
-}
-
 QString Widget::ChineseEnable(QByteArray source){
     QString str;
     QTextCodec *coding = QTextCodec::codecForName("GBK");
@@ -285,4 +295,5 @@ QString Widget::ChineseEnable(QByteArray source){
     //cout<<str<<endl;
     //
 }
+
 

@@ -51,6 +51,7 @@ private:
     void clrreinfos();
     void clrseinfos();
     void setSerialPort();
+    void seinfostoHex();
     QString ChineseEnable(QByteArray source);
     QByteArray StrtoHex(QByteArray);
     QByteArray HextoStr(QByteArray);
