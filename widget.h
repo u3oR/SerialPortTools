@@ -58,27 +58,33 @@ private:
     QByteArray HextoStr(QByteArray);
 private:
     QSerialPort *myserialport;//端口指针
-    QTextCodec *coding;
+
 private:
     QComboBox *COMcBox;
-    QPushButton *refreshButton;
-    QPushButton *openButton;
-    QPushButton *closeButton;
-    QTextEdit *reinfostext;
-    QTextEdit *edinfostext;
-    QPushButton *seinfosbutton;
-    QPushButton *reinfosbutton;
-    QLabel *statusText;//当前状态栏
-//    QPushButton *clrstatusbutton;//清空状态框
-    QPushButton *clrsebutton;
-    QPushButton *clrrebutton;
-    QCheckBox *HexseCheck;
-    QCheckBox *HexreCheck;
-    /***************************/
     QComboBox *BaudrateBox;//波特率
     QComboBox *DatabitBox; //数据位
     QComboBox *StopbitBox; //停止位
     QComboBox *CheckDigitBox; //校验位
+
+    QPushButton *refreshBtn;
+    QPushButton *openBtn;
+    QPushButton *closeBtn;
+
+    QTextEdit *reinfostext;
+    QTextEdit *edinfostext;
+    QPushButton *seinfosBtn;
+    QPushButton *reinfosBtn;
+    QLabel *statusText;//当前状态栏
+//    QPushButton *Clrstatusbutton;//清空状态框
+    QPushButton *ClrseBtn;
+    QPushButton *ClrreBtn;
+
+    QCheckBox *HexseCheck;
+    QCheckBox *HexreCheck;
+
+    QLabel *CodingLabel;
+    /***************************/
+
 
 };
 #endif // WIDGET_H
