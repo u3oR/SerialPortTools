@@ -276,7 +276,6 @@ QByteArray Widget::ChineseEnable(QByteArray source){
     return str;
     //QByteArray显示中文
     //https://blog.csdn.net/xiaoyangger/article/details/5450348
-    //
     //QTextCodec *tc = QTextCodec::codecForName("GBK");
     //QByteArray ba = file.readAll();
     //str = tc->toUnicode(ba);
