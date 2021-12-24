@@ -47,8 +47,8 @@ Widget::Widget(QWidget *parent)
     //
     this->setWindowTitle("SerialPortTool");
     //固定窗口大小
-    this->setMinimumSize(757,468);
-    this->setMaximumSize(757,468);
+    this->setMinimumSize(600,380);
+    this->setMaximumSize(600,380);
     /*******************************************/
     auto mylayout = new QGridLayout;
     /*********端口参数布局***********/
@@ -266,7 +266,7 @@ void Widget::Seinfos(){
 //更新状态信息
 void Widget::UpdateStatus(QString Text){
     QString currentTime = QDateTime::currentDateTime().toString("[yyyy.MM.dd hh:mm:ss:zzz]");
-    statusText->setText("Coding:*UTF-8* Status:"+currentTime+Text);
+    statusText->setText("*UTF-8* Status:"+currentTime+Text);
 }
 //Chinese
 QByteArray Widget::SetCoding(QByteArray source){

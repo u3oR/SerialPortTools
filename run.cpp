@@ -4,7 +4,7 @@
 
 QT_USE_NAMESPACE
 
-//Run::Run(QObject *parent) : QThread(parent) {
+//Run::Run(QObject *parent){
 
 //}
 //Run::~Run(){
