@@ -53,7 +53,7 @@ private:
     void Hexseinfos();
     void Hexreinfos();
     void Hexinfos(QCheckBox *Check,QTextEdit *Text);
-    QByteArray ChineseEnable(QByteArray source);
+    QByteArray SetCoding(QByteArray source);
     QByteArray StrtoHex(QByteArray);
     QByteArray HextoStr(QByteArray);
 private:
@@ -75,14 +75,13 @@ private:
     QPushButton *seinfosBtn;
     QPushButton *reinfosBtn;
     QLabel *statusText;//当前状态栏
-//    QPushButton *Clrstatusbutton;//清空状态框
     QPushButton *ClrseBtn;
     QPushButton *ClrreBtn;
 
     QCheckBox *HexseCheck;
     QCheckBox *HexreCheck;
 
-    QLabel *CodingLabel;
+//    QLabel *CodingLabel;
     /***************************/
 
 

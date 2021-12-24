@@ -269,10 +269,11 @@ void Widget::UpdateStatus(QString Text){
     statusText->setText("Coding:*UTF-8* Status:"+currentTime+Text);
 }
 //Chinese
-QByteArray Widget::ChineseEnable(QByteArray source){
+QByteArray Widget::SetCoding(QByteArray source){
+
     QByteArray str;
     QTextCodec *coding = QTextCodec::codecForName("UTF-8");
-    str =coding->toUnicode(source).toLatin1();
+    str = coding->toUnicode(source).toLatin1();
     return str;
     //QByteArray显示中文
     //https://blog.csdn.net/xiaoyangger/article/details/5450348
