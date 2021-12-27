@@ -43,25 +43,21 @@ Widget::Widget(QWidget *parent)
 
 
 {
-    //Qt如何设置界面风格？
-    //https://www.zhihu.com/question/26241920
-    //
     this->setWindowTitle("SerialPortTool");
-    //固定窗口大小
-    this->setMinimumSize(600,380);
+    this->setMinimumSize(600,380);//固定窗口大小
     this->setMaximumSize(600,380);
-    /*******************************************/
+    /******************************/
     auto mylayout = new QGridLayout;
     /*********端口参数布局***********/
     auto portVBox = new QVBoxLayout;
     portVBox->addWidget(closeBtn);
     portVBox->addWidget(refreshBtn);
-    auto portlayout = new QFormLayout;
-    portlayout->addRow("⚫串口",COMcBox);
-    portlayout->addRow("波特率",BaudrateBox);
-    portlayout->addRow("数据位",DatabitBox);
-    portlayout->addRow("停止位",StopbitBox);
-    portlayout->addRow("校验位",CheckDigitBox);
+        auto portlayout = new QFormLayout;
+        portlayout->addRow("⚫串口",COMcBox);
+        portlayout->addRow("波特率",BaudrateBox);
+        portlayout->addRow("数据位",DatabitBox);
+        portlayout->addRow("停止位",StopbitBox);
+        portlayout->addRow("校验位",CheckDigitBox);
     portVBox->addLayout(portlayout);
     portVBox->addWidget(openBtn);
     /**********发送接收控件布局***********/
@@ -83,7 +79,6 @@ Widget::Widget(QWidget *parent)
     mylayout->addLayout(CtrlVBox1,9,13,7,3);//控制控件
     mylayout->addWidget(statusText,15,0,1,10);//状态栏
 //    mylayout->addWidget(CodingLabel,15,13,1,3);
-
     /*****************************/
 
     this->setLayout(mylayout);
@@ -100,36 +95,40 @@ Widget::Widget(QWidget *parent)
     connect(closeBtn,&QPushButton::clicked,this,&Widget::ClosePort);//关闭打开的端口
 //    connect(reinfosBtn,&QPushButton::clicked,this,&Widget::Reinfos);//关联<接收>按钮和<接收数据>函数
     connect(seinfosBtn,&QPushButton::clicked,this,&Widget::Seinfos);//关联<发送>按钮和<发送数据>函数
-    connect(ClrreBtn,&QPushButton::clicked,[=]{
-        reinfostext->clear();
-    });
-    connect(ClrseBtn,&QPushButton::clicked,[=]{
-        edinfostext->clear();
-    });
+    connect(ClrreBtn,&QPushButton::clicked,[=]{reinfostext->clear();});//清空接收框
+    connect(ClrseBtn,&QPushButton::clicked,[=]{edinfostext->clear();});//清空发送框
     connect(HexseCheck,&QCheckBox::stateChanged,this,&Widget::Hexseinfos);
     connect(HexreCheck,&QCheckBox::stateChanged,this,&Widget::Hexreinfos);
 
     connect(myserialport,&QSerialPort::readyRead,[=]{
-        QThread::sleep(1);
-        readyReadinfos.append(myserialport->readAll());
+        QString readyReadinfos = myserialport->readAll();
+        QByteArray infosarray = readyReadinfos.toUtf8();
 
-//        if(readyReadinfos.right(1).compare("\n")==0){
-//            readyReadinfos.chop(1);
-//        }
-//        if(myserialport->readAll().isEmpty()){
+        reinfostext->append(infosarray);
+    });
+
+/*  读取串口数据
+    QString strinfos = myserialport->readAll();//读取端口数据
+    QByteArray infos = strinfos.toUtf8();
+
+        if(readyReadinfos.right(1).compare("\n")==0){
+            readyReadinfos.chop(1);
+        }
+        if(myserialport->readAll().isEmpty()){
             reinfostext->append(readyReadinfos);
             readyReadinfos="";
-//        }
+        }
 
 
-//        while(myserialport->waitForReadyRead(10)){
-//            infos += myserialport->readAll();
-//            if(infos.at(infos.length()-1)==' '){
-//                infos.chop(1);
-//            }
-//        }
-//        QString str(infos);
-    });
+        while(myserialport->waitForReadyRead(10)){
+            infos += myserialport->readAll();
+            if(infos.at(infos.length()-1)==' '){
+                infos.chop(1);
+            }
+        }
+*/
+
+
     //connect(HexreCheck,&QCheckBox::stateChanged,this,&Widget::Hexinfos(HexreCheck,reinfostext));
 }
 //QString strinfos = myserialport->readAll();//读取端口数据

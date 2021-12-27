@@ -58,7 +58,7 @@ private:
     QByteArray HextoStr(QByteArray);
 private:
     QSerialPort *myserialport;//端口指针
-    QString readyReadinfos="";
+
 
 private:
     QComboBox *COMcBox;

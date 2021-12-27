@@ -12,7 +12,7 @@
 
 
 //public:
-//    Run(QObject *parent);
+//    Run(QObject *parent = nullptr);
 //    ~Run();
 //public:
 //    void turnintoHex();
