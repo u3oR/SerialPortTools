@@ -15,6 +15,7 @@
 #include <QTextCodec>
 #include <QApplication>
 #include <QTime>
+#include <QThread>
 //#include <3rd_qextserialport/qextserialport.h>
 //#include <QRadioButton>
 
@@ -29,8 +30,8 @@ Widget::Widget(QWidget *parent)
     , refreshBtn(new QPushButton(tr("刷新串口")))
     , openBtn(new QPushButton(tr("打开串口")))
     , closeBtn(new QPushButton(tr("关闭串口")))
-    , reinfostext(new QTextEdit(tr("接收框")))
-    , edinfostext(new QTextEdit(tr("发送框")))
+    , reinfostext(new QTextEdit(tr("")))
+    , edinfostext(new QTextEdit(tr("")))
     , seinfosBtn(new QPushButton(tr("发送")))
     , reinfosBtn(new QPushButton(tr("接收")))
     , statusText(new QLabel("Status:"))
@@ -97,7 +98,7 @@ Widget::Widget(QWidget *parent)
     connect(refreshBtn,&QPushButton::clicked,this,&Widget::RefreshPort);//刷新串口
     connect(openBtn,&QPushButton::clicked,this,&Widget::OpenPort);//打开端口
     connect(closeBtn,&QPushButton::clicked,this,&Widget::ClosePort);//关闭打开的端口
-    connect(reinfosBtn,&QPushButton::clicked,this,&Widget::Reinfos);//关联<接收>按钮和<接收数据>函数
+//    connect(reinfosBtn,&QPushButton::clicked,this,&Widget::Reinfos);//关联<接收>按钮和<接收数据>函数
     connect(seinfosBtn,&QPushButton::clicked,this,&Widget::Seinfos);//关联<发送>按钮和<发送数据>函数
     connect(ClrreBtn,&QPushButton::clicked,[=]{
         reinfostext->clear();
@@ -107,10 +108,32 @@ Widget::Widget(QWidget *parent)
     });
     connect(HexseCheck,&QCheckBox::stateChanged,this,&Widget::Hexseinfos);
     connect(HexreCheck,&QCheckBox::stateChanged,this,&Widget::Hexreinfos);
-//    connect(myserialport,&QSerialPort::readyRead,this,&Widget::Reinfos);
-    //connect(HexreCheck,&QCheckBox::stateChanged,this,&Widget::Hexinfos(HexreCheck,reinfostext));
 
+    connect(myserialport,&QSerialPort::readyRead,[=]{
+        QThread::sleep(1);
+        readyReadinfos.append(myserialport->readAll());
+
+//        if(readyReadinfos.right(1).compare("\n")==0){
+//            readyReadinfos.chop(1);
+//        }
+//        if(myserialport->readAll().isEmpty()){
+            reinfostext->append(readyReadinfos);
+            readyReadinfos="";
+//        }
+
+
+//        while(myserialport->waitForReadyRead(10)){
+//            infos += myserialport->readAll();
+//            if(infos.at(infos.length()-1)==' '){
+//                infos.chop(1);
+//            }
+//        }
+//        QString str(infos);
+    });
+    //connect(HexreCheck,&QCheckBox::stateChanged,this,&Widget::Hexinfos(HexreCheck,reinfostext));
 }
+//QString strinfos = myserialport->readAll();//读取端口数据
+//QByteArray infos = strinfos.toUtf8();
 //窗口关闭
 Widget::~Widget(){
     //问题1：如果没有下面的语句，关闭程序后串口还会被占用吗
