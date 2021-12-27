@@ -75,9 +75,6 @@ Dialog::Dialog(QWidget *parent)
     , runButton(new QPushButton(tr("Start")))
 {
     
-    this->setMaximumSize(500,400);
-    this->setMinimumSize(500,400);
-
     //将获取到的串口名列表添加到UI窗口列表
     const auto infos = QSerialPortInfo::availablePorts();
     for (const QSerialPortInfo &info : infos)
@@ -109,10 +106,9 @@ Dialog::Dialog(QWidget *parent)
 
     //将<事件发生>和<触发执行>关联起来
     connect(runButton, &QPushButton::clicked, this, &Dialog::transaction);
-    
-    //将<MasterThread执行>和<窗口显示内容>关联起来
 
-    connect(&thread, &MasterThread::response, this, &Dialog::showResponse);
+
+    connect(&thread, &MasterThread::response, this, &Dialog::showResponse);//关联response信号
     
     connect(&thread, &MasterThread::error, this, &Dialog::processError);
     

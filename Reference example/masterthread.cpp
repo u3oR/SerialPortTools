@@ -73,22 +73,19 @@ MasterThread::~MasterThread()
 //! [0]
 
 //! [1] //! [2]
-//
-//https://baike.baidu.com/item/事务/5945882
-//Transaction
-//
 void MasterThread::transaction(const QString &portName, int waitTimeout, const QString &request)
 {
     //! [1]
     QMutexLocker locker(&mutex);
+    //左值是MasterThread类中的私有变量,右值是传入函数的参数, 下同!
     this->portName = portName;
     this->waitTimeout = waitTimeout;
     this->request = request;
     //! [3]
-    if (!isRunning())
-        start();
+    if (!isRunning())//判断该线程是否在运行
+        start();     //没有运行则开始运行
     else
-        cond.wakeOne();
+        cond.wakeOne();//在运行则唤醒
 }
 //! [2] //! [3]
 
@@ -113,7 +110,7 @@ void MasterThread::run()
 
     if (currentPortName.isEmpty()) {
         emit error(tr("No port name specified"));
-        return;
+        return;//强制结束当前函数(run), 该写法只可强制结束返回类型为void的函数
     }
 
     while (!quit) {
@@ -122,9 +119,8 @@ void MasterThread::run()
             serial.close();
             serial.setPortName(currentPortName);
 
-            if (!serial.open(QIODevice::ReadWrite)) {
-                emit error(tr("Can't open %1, error code %2")
-                           .arg(portName).arg(serial.error()));
+            if (!serial.open(QIODevice::ReadWrite)) {   //"读写"打开失败
+                emit error(tr("Can't open %1, error code %2").arg(portName).arg(serial.error()));
                 return;
             }
         }
@@ -132,30 +128,29 @@ void MasterThread::run()
         // write request
         QByteArray requestData = currentRequest.toLocal8Bit();
         serial.write(requestData);
+
         if (serial.waitForBytesWritten(waitTimeout)) {
             //! [8] //! [10]
             // read response
             if (serial.waitForReadyRead(currentWaitTimeout)) {
-                QByteArray responseData = serial.readAll();
+                QByteArray responseData = serial.readAll();//读取串口信息
                 while (serial.waitForReadyRead(10))
                     responseData += serial.readAll();
-
-                QString response(responseData);
+                QString response(responseData);//将Qbytearray转换成Qstring?
                 //! [12]
-                emit this->response(response);
+                emit this->response(response);//发送返回的信号
                 //! [10] //! [11] //! [12]
             } else {
-                emit timeout(tr("Wait read response timeout %1")
-                             .arg(QTime::currentTime().toString()));
+                emit timeout(tr("Wait read response timeout %1").arg(QTime::currentTime().toString()));//等待接收超时
             }
             //! [9] //! [11]
         } else {
-            emit timeout(tr("Wait write request timeout %1")
-                         .arg(QTime::currentTime().toString()));
+            emit timeout(tr("Wait write request timeout %1").arg(QTime::currentTime().toString()));//等待接收超时
         }
         //! [9]  //! [13]
         mutex.lock();
         cond.wait(&mutex);
+
         if (currentPortName != portName) {
             currentPortName = portName;
             currentPortNameChanged = true;
