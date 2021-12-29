@@ -1,4 +1,11 @@
-# Reference example
+## SerialPortTools
 
-blcokingmaster是qt官方的串口示例
-这里仅加了注释，作为学习。
+SerialPortTools是使用QT C++ 提供的接口制作的串口调试工具Demo
+
+尽管目录中包含了第三方的串口库<3rd_qextserialport>，但是并未使用;
+
+<run.cpp>和<run.h>也暂时无用
+
+窗口布局：
+
+![](layout.png)

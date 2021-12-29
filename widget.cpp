@@ -17,7 +17,6 @@
 #include <QTime>
 #include <QThread>
 //#include <3rd_qextserialport/qextserialport.h>
-//#include <QRadioButton>
 
 
 Widget::Widget(QWidget *parent)
@@ -44,8 +43,9 @@ Widget::Widget(QWidget *parent)
 
 {
     this->setWindowTitle("SerialPortTool");
-    this->setMinimumSize(600,380);//固定窗口大小
-    this->setMaximumSize(600,380);
+    int width =580;double scale=0.618;
+    this->setMinimumSize(width,(int)width*scale);//固定窗口大小
+    this->setMaximumSize(width,(int)width*scale);
     /******************************/
     auto mylayout = new QGridLayout;
     /*********端口参数布局***********/
@@ -53,7 +53,7 @@ Widget::Widget(QWidget *parent)
     portVBox->addWidget(closeBtn);
     portVBox->addWidget(refreshBtn);
         auto portlayout = new QFormLayout;
-        portlayout->addRow("⚫串口",COMcBox);
+        portlayout->addRow("(*^o^*)",COMcBox);
         portlayout->addRow("波特率",BaudrateBox);
         portlayout->addRow("数据位",DatabitBox);
         portlayout->addRow("停止位",StopbitBox);
@@ -85,6 +85,7 @@ Widget::Widget(QWidget *parent)
     RefreshPort();//首次刷新串口信息
     SetPort();//初始化串口参数
     myserialport = new QSerialPort();
+
     closeBtn->setEnabled(false);
     reinfosBtn->setEnabled(false);
     seinfosBtn->setEnabled(false);
@@ -93,46 +94,76 @@ Widget::Widget(QWidget *parent)
     connect(refreshBtn,&QPushButton::clicked,this,&Widget::RefreshPort);//刷新串口
     connect(openBtn,&QPushButton::clicked,this,&Widget::OpenPort);//打开端口
     connect(closeBtn,&QPushButton::clicked,this,&Widget::ClosePort);//关闭打开的端口
-//    connect(reinfosBtn,&QPushButton::clicked,this,&Widget::Reinfos);//关联<接收>按钮和<接收数据>函数
     connect(seinfosBtn,&QPushButton::clicked,this,&Widget::Seinfos);//关联<发送>按钮和<发送数据>函数
     connect(ClrreBtn,&QPushButton::clicked,[=]{reinfostext->clear();});//清空接收框
     connect(ClrseBtn,&QPushButton::clicked,[=]{edinfostext->clear();});//清空发送框
     connect(HexseCheck,&QCheckBox::stateChanged,this,&Widget::Hexseinfos);
     connect(HexreCheck,&QCheckBox::stateChanged,this,&Widget::Hexreinfos);
 
-    connect(myserialport,&QSerialPort::readyRead,[=]{
-        QString readyReadinfos = myserialport->readAll();
-        QByteArray infosarray = readyReadinfos.toUtf8();
+//    connect(reinfosBtn,&QPushButton::clicked,this,&Widget::Reinfos);//关联<接收>按钮和<接收数据>函数
+//    connect(myserialport,&QSerialPort::readyRead,[=]{
+//        QString readyReadinfos = myserialport->readAll();
+//        QByteArray infosarray = readyReadinfos.toUtf8();
+//        reinfostext->append(infosarray);
+//    });
+    connect(myserialport,&QSerialPort::readyRead,this,&Widget::Readinfos);
+}
 
-        reinfostext->append(infosarray);
-    });
+// 读取串口数据
+//    QString strinfos = myserialport->readAll();//读取端口数据
+//    QByteArray infos = strinfos.toUtf8();
 
-/*  读取串口数据
-    QString strinfos = myserialport->readAll();//读取端口数据
-    QByteArray infos = strinfos.toUtf8();
-
-        if(readyReadinfos.right(1).compare("\n")==0){
-            readyReadinfos.chop(1);
-        }
-        if(myserialport->readAll().isEmpty()){
-            reinfostext->append(readyReadinfos);
-            readyReadinfos="";
-        }
+//        if(readyReadinfos.right(1).compare("\n")==0){
+//            readyReadinfos.chop(1);
+//        }
+//        if(myserialport->readAll().isEmpty()){
+//            reinfostext->append(readyReadinfos);
+//            readyReadinfos="";
+//        }
 
 
-        while(myserialport->waitForReadyRead(10)){
-            infos += myserialport->readAll();
-            if(infos.at(infos.length()-1)==' '){
-                infos.chop(1);
-            }
-        }
-*/
+//        while(myserialport->waitForReadyRead(10)){
+//            infos += myserialport->readAll();
+//            if(infos.at(infos.length()-1)==' '){
+//                infos.chop(1);
+//            }
+//        }
+
 
 
     //connect(HexreCheck,&QCheckBox::stateChanged,this,&Widget::Hexinfos(HexreCheck,reinfostext));
-}
+
 //QString strinfos = myserialport->readAll();//读取端口数据
 //QByteArray infos = strinfos.toUtf8();
+void Widget::Readinfos(){
+
+//    QByteArray infos;
+//    do{
+//        infos = myserialport->readAll();
+//        int infos_size=infos.size();
+//        qDebug()<<infos_size;
+//        reinfostext->append(infos);
+//        infos.clear();
+//    }while(myserialport->waitForReadyRead(10));
+    QString response;
+//    if (myserialport->waitForBytesWritten()) {
+        //! [8] //! [10]
+        // read response
+        if (myserialport->waitForReadyRead(0)) {
+            QByteArray responseData = myserialport->readAll();//读取串口信息
+            while (myserialport->waitForReadyRead(10))
+                responseData += myserialport->readAll();
+                qDebug()<<responseData.size();
+                response = responseData;//将Qbytearray转换成Qstring?
+            //! [12]
+//            emit this->response(response);//发送返回的信号
+            //! [10] //! [11] //! [12]
+        }
+
+    reinfostext->setText(response);
+
+
+}
 //窗口关闭
 Widget::~Widget(){
     //问题1：如果没有下面的语句，关闭程序后串口还会被占用吗
@@ -191,7 +222,6 @@ void Widget::ClosePort(){
     seinfosBtn->setEnabled(false);
     reinfosBtn->setEnabled(false);
     refreshBtn->setEnabled(true);
-
     COMcBox->setEnabled(true);
     BaudrateBox->setEnabled(true);
     DatabitBox->setEnabled(true);

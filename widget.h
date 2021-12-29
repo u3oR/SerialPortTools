@@ -43,7 +43,8 @@ private:
     void RefreshPort();//刷新端口
     void OpenPort();//打开端口
     void ClosePort();//关闭端口
-    void Reinfos();//接收数据 return infos
+    void Readinfos();
+    void Reinfos();//手动接收数据 return infos
     void Seinfos();//发送数据 send infos
     void UpdateStatus(QString Text);//更新数据
     void ClrStatus();//清除状态栏数据
@@ -83,7 +84,7 @@ private:
     QCheckBox *HexreCheck;
 
 //    QLabel *CodingLabel;
-    /***************************/
+    /**********************/
 
 
 };
