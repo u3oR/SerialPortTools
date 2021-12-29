@@ -53,6 +53,7 @@
 #include <QtSerialPort/QSerialPort>
 
 #include <QTime>
+#include <QThread>
 
 QT_USE_NAMESPACE
 
@@ -126,9 +127,11 @@ void MasterThread::run()
         }
         //! [7] //! [8]
         // write request
+        // 写数据
         QByteArray requestData = currentRequest.toLocal8Bit();
         serial.write(requestData);
-
+//        QThread::sleep(10);
+        // 读数据
         if (serial.waitForBytesWritten(waitTimeout)) {
             //! [8] //! [10]
             // read response
