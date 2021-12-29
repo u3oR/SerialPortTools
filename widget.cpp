@@ -17,6 +17,8 @@
 #include <QTime>
 #include <QThread>
 //#include <3rd_qextserialport/qextserialport.h>
+//#include <3rd_qextserialport/qextserialport_global.h>
+//#include <3rd_qextserialport/qextserialport_p.h>
 
 
 Widget::Widget(QWidget *parent)
@@ -26,26 +28,26 @@ Widget::Widget(QWidget *parent)
     , DatabitBox(new QComboBox()) //数据位
     , StopbitBox(new QComboBox()) //停止位
     , CheckDigitBox(new QComboBox()) //校验位
-    , refreshBtn(new QPushButton(tr("刷新串口")))
-    , openBtn(new QPushButton(tr("打开串口")))
+    , refreshBtn(new QPushButton(tr("Refresh")))
+    , openBtn(new QPushButton(tr("Open")))
     , closeBtn(new QPushButton(tr("关闭串口")))
     , reinfostext(new QTextEdit(tr("")))
     , edinfostext(new QTextEdit(tr("")))
-    , seinfosBtn(new QPushButton(tr("发送")))
+    , seinfosBtn(new QPushButton(tr("Send")))
     , reinfosBtn(new QPushButton(tr("接收")))
     , statusText(new QLabel("Status:"))
-    , ClrseBtn(new QPushButton(tr("清空发送框")))
-    , ClrreBtn(new QPushButton(tr("清空接收框")))
-    , HexseCheck(new QCheckBox(tr("以16进制发送")))
-    , HexreCheck(new QCheckBox(tr("以16进制显示接收")))
+    , ClrseBtn(new QPushButton(tr("clear发送框")))
+    , ClrreBtn(new QPushButton(tr("clear接收框")))
+    , HexseCheck(new QCheckBox(tr("Send in Hex")))
+    , HexreCheck(new QCheckBox(tr("Receive in Hex")))
 //    , CodingLabel(new QLabel("UTF-8"))//编码格式
 
 
 {
     this->setWindowTitle("SerialPortTool");
-    int width =580;double scale=0.618;
-    this->setMinimumSize(width,(int)width*scale);//固定窗口大小
-    this->setMaximumSize(width,(int)width*scale);
+//    int width =580;double scale=0.618;
+//    this->setMinimumSize(width,(int)width*scale);//固定窗口大小
+//    this->setMaximumSize(width,(int)width*scale);
     /******************************/
     auto mylayout = new QGridLayout;
     /*********端口参数布局***********/
@@ -83,8 +85,10 @@ Widget::Widget(QWidget *parent)
 
     this->setLayout(mylayout);
     RefreshPort();//首次刷新串口信息
+    COMcBox->setCurrentIndex(1);
     SetPort();//初始化串口参数
     myserialport = new QSerialPort();
+
 
     closeBtn->setEnabled(false);
     reinfosBtn->setEnabled(false);
@@ -135,34 +139,50 @@ Widget::Widget(QWidget *parent)
 
 //QString strinfos = myserialport->readAll();//读取端口数据
 //QByteArray infos = strinfos.toUtf8();
+//void Widget::Readinfos(){
+//    qint64 BufferSize = 1024;
+//    qint64 count = 0;
+////    myserialport->setReadBufferSize(BufferSize);
+//    QString infos,info;
+//    /************************/
+//    do {
+//        info = myserialport->read(BufferSize);
+//        count++;
+//        QThread::msleep(10);
+//        qDebug()<<info.size();
+//        infos += info;
+//    }while(myserialport->waitForReadyRead(10)) ;
+
+////    QString str = reinfostext->toPlainText();
+//    QByteArray datas = infos.toUtf8();
+//    reinfostext->append(datas);
+//    qDebug()<<"计数君:"<<count<<"\n*************";
+//    if(HexreCheck->isChecked()){
+////        reinfostext
+//    }
+
+
+//}
 void Widget::Readinfos(){
+    QByteArray info,infos;
+    qint64 count = 0;
+//    if(myserialport->waitForBytesWritten()){
+        if(myserialport->waitForReadyRead()){
+            info = myserialport->readAll();count++;
+            while(myserialport->waitForReadyRead(10)){
+                info += myserialport->readAll();
+                count++;
+            }
+//            infos = ((QString)info).toUtf8();
+            QString s =info.toHex();
+//            s.remove('\n');
+//            reinfostext->append(s);
+            reinfostext->append(s);
+            reinfostext->setText(reinfostext->toPlainText().remove('\n'));
 
-//    QByteArray infos;
-//    do{
-//        infos = myserialport->readAll();
-//        int infos_size=infos.size();
-//        qDebug()<<infos_size;
-//        reinfostext->append(infos);
-//        infos.clear();
-//    }while(myserialport->waitForReadyRead(10));
-    QString response;
-//    if (myserialport->waitForBytesWritten()) {
-        //! [8] //! [10]
-        // read response
-        if (myserialport->waitForReadyRead(0)) {
-            QByteArray responseData = myserialport->readAll();//读取串口信息
-            while (myserialport->waitForReadyRead(10))
-                responseData += myserialport->readAll();
-                qDebug()<<responseData.size();
-                response = responseData;//将Qbytearray转换成Qstring?
-            //! [12]
-//            emit this->response(response);//发送返回的信号
-            //! [10] //! [11] //! [12]
         }
-
-    reinfostext->setText(response);
-
-
+//    }
+        qDebug()<<"Count:"<<count;
 }
 //窗口关闭
 Widget::~Widget(){
@@ -252,7 +272,7 @@ void Widget::ClosePort(){
     DatabitBox->setCurrentText("8");
     StopbitBox->setCurrentText("1");
     CheckDigitBox->setCurrentText("无");
-}
+ }
 //接收框的16进制转换
 void Widget::Hexreinfos(){
  QString strinfos = reinfostext->toPlainText();
@@ -261,7 +281,7 @@ void Widget::Hexreinfos(){
      reinfostext->setText(infos.toHex(' ').toUpper());
  }else{
      //把接收框的16进制数据转成普通文本
-     reinfostext->setText(QByteArray::fromHex(infos));
+     reinfostext->setText(QString::fromUtf8(QByteArray::fromHex(infos)));
  }
 }
 //发送框的16进制转换
@@ -336,3 +356,9 @@ QByteArray Widget::SetCoding(QByteArray source){
 }
 
 
+QByteArray clearEnter(QString str){
+    QByteArray infos = str.toLatin1();
+    return infos;
+
+}
+//接收qstring，转成hex(qbytearray)，去回车->(qstring),

@@ -27,17 +27,17 @@ SOURCES += \
     main.cpp \
     run.cpp \
     widget.cpp \
-    #./qextserialport/qextserialport.cpp
-    #./qextserialport/qextserialport_win.cpp
+#    ./qextserialport/qextserialport.cpp
+#    ./qextserialport/qextserialport_win.cpp
 
 
 
 HEADERS += \
     run.h \
     widget.h \
-   # ./qextserialport/qextserialport.h \
-   # ./qextserialport/qextserialport_global.h \
-   # ./qextserialport/qextserialport_p.h
+#    ./qextserialport/qextserialport.h \
+#    ./qextserialport/qextserialport_global.h \
+#    ./qextserialport/qextserialport_p.h
 
 
 # Default rules for deployment.
