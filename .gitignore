@@ -1,2 +1,7 @@
 /*.user
-/Reference example/*.user
+/Reference/*.user
+/Reference/blockingmaster/*.user
+/Reference/blockingslave/*.user
+/SerialPortTools/SerialTool/*.user
+
+*.user
