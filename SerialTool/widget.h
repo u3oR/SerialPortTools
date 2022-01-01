@@ -46,6 +46,7 @@ public:
     void initfile();
     void refileclear();
     QMutex mutex;
+    void arraytoutf8(QString &str,QByteArray &array);
     void arrayToUTF8(QString &str/*返回的字符串*/, const QByteArray &array/*串口数据数组*/);
 private:
     QByteArray *m_asciiBuf;//读取串口数据Buf

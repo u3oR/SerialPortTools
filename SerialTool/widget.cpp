@@ -27,7 +27,7 @@
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
-    , count(1)
+    , count(0)
     , COMcBox(new QComboBox())
     , BaudrateBox(new QComboBox()) //波特率
     , DatabitBox(new QComboBox()) //数据位
@@ -51,10 +51,10 @@ Widget::Widget(QWidget *parent)
 {
     m_asciiBuf = new QByteArray;
     initfile();
-    this->setWindowTitle("SerialPortTool");
-//    int width =580;double scale=0.618;
-//    this->setMinimumSize(width,(int)width*scale);//固定窗口大小
-//    this->setMaximumSize(width,(int)width*scale);
+    this->setWindowTitle(tr("串口调试工具-简陋版ヾ(•ω•`)o"));
+    int width =580;double scale=0.7;
+    this->setMinimumSize(width,(int)width*scale);//固定窗口大小
+    this->setMaximumSize(width,(int)width*scale);
     /******************************/
     auto mylayout = new QGridLayout;
     /*********端口参数布局***********/
@@ -70,11 +70,11 @@ Widget::Widget(QWidget *parent)
     portVBox->addLayout(portlayout);
     portVBox->addWidget(openBtn);
     /**********发送接收控件布局***********/
-    auto CtrlVBox2 = new QVBoxLayout;
-//    CtrlVBox2->addWidget(reinfosBtn);
-    CtrlVBox2->addWidget(seinfosBtn);
+//    auto CtrlVBox2 = new QVBoxLayout;
+//    CtrlVBox2->addWidget(seinfosBtn);
     /***********控制按钮布局**********/
     auto CtrlVBox1 =new QVBoxLayout;
+    CtrlVBox1->addWidget(seinfosBtn);
     CtrlVBox1->addWidget(HexreCheck);
     CtrlVBox1->addWidget(HexseCheck);
     CtrlVBox1->addWidget(ClrreBtn);
@@ -83,8 +83,8 @@ Widget::Widget(QWidget *parent)
     /**********主窗口布局***********/
     mylayout->addWidget(reinfostext,0,0,9,12);//接收框
     mylayout->addLayout(portVBox,0,12,9,4);//串口参数
-    mylayout->addWidget(edinfostext,9,0,5,10);//编辑框
-    mylayout->addLayout(CtrlVBox2,9,10,7,3);//发送和接受按钮
+    mylayout->addWidget(edinfostext,9,0,5,13);//编辑框
+//    mylayout->addLayout(CtrlVBox2,9,10,7,3);//发送和接受按钮
     mylayout->addLayout(CtrlVBox1,9,13,7,3);//控制控件
     mylayout->addWidget(statusText,15,0,1,10);//状态栏
 //    mylayout->addWidget(CodingLabel,15,13,1,3);
@@ -99,19 +99,13 @@ Widget::Widget(QWidget *parent)
         COMcBox->addItem(info.portName());
     }
     UpdateStatus("更新串口列表完成");
-    /*******************************/
     COMcBox->setCurrentIndex(1);
     SetPort();//初始化串口参数
     myserialport = new QSerialPort();
-
-
     closeBtn->setEnabled(false);
     reinfosBtn->setEnabled(false);
     seinfosBtn->setEnabled(false);
-//    HexreCheck->setChecked(1);
     reinfostext->setReadOnly(true);
-
-//    QTextCodec *coding = QTextCodec::codecForName("UTF-8");
     /*********************************************/
     connect(refreshBtn,&QPushButton::clicked,[=]{ //刷新串口
         COMcBox->clear();//清空列表信息
@@ -123,16 +117,14 @@ Widget::Widget(QWidget *parent)
     });
     connect(openBtn,&QPushButton::clicked,this,&Widget::OpenPort);//打开端口
     connect(closeBtn,&QPushButton::clicked,this,&Widget::ClosePort);//关闭打开的端口
-
     connect(seinfosBtn,&QPushButton::clicked,this,&Widget::Seinfos);//关联<发送>按钮和<发送数据>函数
-    connect(ClrreBtn,&QPushButton::clicked,[=]{reinfostext->clear();refileclear();});//清空接收框
+    connect(ClrreBtn,&QPushButton::clicked,[=]{reinfostext->clear();Widget::count=0;});//清空接收框
     connect(ClrseBtn,&QPushButton::clicked,[=]{edinfostext->clear();});//清空发送框
     connect(HexseCheck,&QCheckBox::stateChanged,this,&Widget::Hexseinfos);
     connect(HexreCheck,&QCheckBox::stateChanged,this,&Widget::Hexreinfos);
-
     connect(myserialport,&QSerialPort::readyRead,[=]{
-//        HexreCheck->setChecked(1);
-        qDebug()<<"Readinfos计数君:"<<count++;
+
+        qDebug()<<"Readinfos计数君:"<<++count;
         Readinfos();
     });
 }
@@ -140,19 +132,17 @@ Widget::Widget(QWidget *parent)
 // 读取串口数据
 void Widget::Readinfos(){
 
-        QByteArray array,testarray;
+        QByteArray array,
+                    testarray;//debug用
         QString Str;//传入接收框的字符串
+        array= myserialport->readAll();
+        testarray=array;
 
-        qApp->processEvents();
-        array/*Qbytearray*/ = myserialport->readAll();
-//        testarray=array;
-        arrayToUTF8(Str,array);//utf转码接收，可以防止乱码
+        arrayToUTF8(Str,array);//utf转码接收，可以防止乱码4
+//        arraytoutf8(Str,array);//这个是我写的
 
-        qDebug()<<"Size:"<<Str.size()
-               <<"arraySize:"<<testarray.size()
-              <<"\n array:"<<testarray
-             <<"\narrayHex"<<testarray.toHex();
         reinfostext->moveCursor(QTextCursor::End);//前提要保证接收框的是只读的，不然会有麻烦
+        if(Str.right(1)=='\r') Str.chop(1);
         reinfostext->insertPlainText(Str);
         /*注意！
          *  此处不能使用reinfostext->append(Str);
@@ -161,12 +151,19 @@ void Widget::Readinfos(){
          *  所以每次append时都会在前面都加一个'\n'，导致排版凌乱。
          *  所以使用insertPlainText()在后面追加文本，问题就迎刃而解
         */
-        qDebug()<<"\nReinfostext_Str:"<<reinfostext->toPlainText()
-               <<"\nStr:"<<Str;
+        qDebug()
+            <<"   arraySize:"<<testarray.size()
+            <<"\n array:"<<testarray
+            <<"\n arrayHex"<<testarray.toHex()
+            <<"\n Str:"<<Str
+            <<"\n Size:"<<Str.size();
+//            <<"\nReinfostext_Str:"<<reinfostext->toPlainText();
+
         testarray.clear();
 }
 
-//https://github.com/Skiars/SerialTool
+//https://www.ruanyifeng.com/blog/2007/10/ascii_unicode_and_utf-8.html
+//关于utf8编码规则的博客。
 void Widget::arrayToUTF8(QString &str/*传出字符串*/, const QByteArray &array/*串口数据数组*/)
 {
 
@@ -174,41 +171,74 @@ void Widget::arrayToUTF8(QString &str/*传出字符串*/, const QByteArray &arra
     bool isCut = false;
     //m_asciiBuf是头文件中定义的Qbytearray型指针
     // QByteArray *m_asciiBuf;
-    m_asciiBuf->append(array);
-    lastIndex = m_asciiBuf->length() - 1;
-    if (m_asciiBuf->at(lastIndex) & 0x80) { // 0xxx xxxx -> OK
+
+    m_asciiBuf->append(array);//把内容加到array中
+    /*int*/lastIndex = m_asciiBuf->length() - 1;//最后一个字节的位置
+
+    /* 如果m_asciiBuf最后的那个字节和1000 0000(0x80)相与后不是零，
+     * 那么那个字节就该是1xxxxxxx，说明不是单字节字符，那就应该接着向前判断
+     * 如果相与后是零，那它就是单字节字符，后面就可以断开
+     * 0xxx xxxx -> OK
+     */
+    if (m_asciiBuf->at(lastIndex) & 0x80) {
+
         // UTF8最大编码为4字节，因此向前搜寻三字节
-        for (int i = lastIndex; i >= 0 && ++cut < 4; --i) {
+        for (int i = lastIndex; i >= 0 && ++cut < 4; --i) {//接着判断倒数第二个(cut=1)，倒数第三个(cut=2)，倒数第四个(cut=3)
             uint8_t byte = uint8_t(m_asciiBuf->at(i));
-            if (((cut < 2) && (byte & 0xE0) == 0xC0) ||
-                ((cut < 3) && (byte & 0xF0) == 0xE0) ||
-                (byte & 0xF8) == 0xF0) {
+            if (((cut < 2) && (byte & 0xE0) == 0xC0) || //0xE0=11100000 0xC0=11000000
+                ((cut < 3) && (byte & 0xF0) == 0xE0) || //0xF0=11110000 0xE0=11100000
+                (byte & 0xF8) == 0xF0){                 //0xF8=11111000 0xF0=11110000
                 isCut = true;
                 break;
             }
         }
     }
     lastIndex -= isCut ? cut - 1 : -1;
+
     QByteArray cutArray = m_asciiBuf->mid(lastIndex);
     m_asciiBuf->remove(lastIndex, cut);
+    //转成utf8
     QTextCodec *code = QTextCodec::codecForName("UTF8");
     str = code->toUnicode(*m_asciiBuf);
+
     m_asciiBuf->clear();
     m_asciiBuf->append(cutArray);
 }
+void Widget::arraytoutf8(QString &string,QByteArray &array){
+    QByteArray buf;
+    bool iscut = false;
+    int endindex =buf.length()-1;//endindex是长度减一,那么buf.at(endindex)就正好是最后一个字节
+    int mark=0;
+    buf.append(array);
 
+    if(!((buf.at(endindex) & 0x80) == 0)){//如果是单字节字符，就不用做任何事
+        // UTF8最大编码为4字节，因此向前搜寻三字节
+        for (int count=0;count<3;++mark,count++) {//count是for的计数器
+            uint8_t byte = (uint8_t)buf.at(endindex-mark);//第一次:byte是倒数第二个字节 第二次是倒数第三个字节....
+            if( ((count<1) && (byte & 0xE0) == 0xC0)||((count<2) && (byte & 0xF0) == 0xE0)||((count<3) && (byte & 0xF8) == 0xF0) )
+            {
+                iscut = true;
+                break;//遇到以上字节就跳出循环
+            }
+        }
+    }
+    if(iscut){
+        endindex -= mark-1;//如果是
+    }else{
+        endindex += 1;
+    }
+    QByteArray cutarray=buf.mid(endindex);
+    buf.remove(endindex,mark);//在buf中把不完整的字节删除
+    string = QString::fromUtf8(buf);//完整字符转成utf8,传到string.
+    buf.clear();
+    buf.append(cutarray);//留下字符的部分字节
+}
 //窗口关闭
 Widget::~Widget(){
     if (myserialport->isOpen()){
         myserialport->close();
     }
     delete myserialport;
-
-    refile.remove();
-    edfile.remove();
-    refile.close();
-    edfile.close();
-
 }
 
 //打开端口
@@ -246,7 +276,6 @@ void Widget::OpenPort(){
 //关闭端口
 void Widget::ClosePort(){
     myserialport->close();
-
     openBtn->setEnabled(true);
     closeBtn->setEnabled(false);
     seinfosBtn->setEnabled(false);
@@ -258,7 +287,7 @@ void Widget::ClosePort(){
     StopbitBox->setEnabled(true);
     CheckDigitBox->setEnabled(true);
     UpdateStatus("Colsed");
-    Widget::count=0;
+
 
 }
 //设置串口参数函数
@@ -307,16 +336,7 @@ void Widget::Hexseinfos(){
      edinfostext->setText(QByteArray::fromHex(infos));
     }
 }
-/*
-void Widget::Hexinfos(QCheckBox *Check,QTextEdit *Text){
-    QByteArray infos = Text->toPlainText().toLatin1();
-    if(Check->isChecked()){
-        Text->setText(infos.toHex(' ').toUpper());
-    }else{
-        Text->setText(QByteArray::fromHex(infos));
-    }
-}
-*/
+
 
 //接收数据
 void Widget::Reinfos(){
@@ -341,7 +361,6 @@ void Widget::Seinfos(){
     }else{
         myserialport->write(readysendinfos);
     }
-
     //处理数据
     //...
     //发送数据
