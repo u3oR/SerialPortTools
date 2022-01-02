@@ -49,7 +49,6 @@ Widget::Widget(QWidget *parent)
 
 
 {
-    m_asciiBuf = new QByteArray;
     buf = new QByteArray;
     initfile();
     this->setWindowTitle(tr("串口调试工具-简陋版ヾ(•ω•`)o"));
@@ -147,7 +146,6 @@ void Widget::Readinfos(){
         }else {
             reinfostext->append(array.toHex(' ').toUpper());
         }
-
         /*注意！
          *  此处不能使用reinfostext->append(Str);
          *  "Appends a $new paragraph$ with text to the end of the text edit."
@@ -167,80 +165,39 @@ void Widget::Readinfos(){
 }
 
 
-void Widget::arrayToUTF8(QString &str/*传出字符串*/, const QByteArray &array/*串口数据数组*/)
-{
-
-    int lastIndex, cut = 0;
-    bool isCut = false;
-    //m_asciiBuf是头文件中定义的Qbytearray型指针
-    // QByteArray *m_asciiBuf;
-
-    m_asciiBuf->append(array);//把内容加到array中
-    lastIndex = m_asciiBuf->length() - 1;//最后一个字节的位置
-
-    /* 如果m_asciiBuf最后的那个字节和1000 0000(0x80)相与后不是零，
-     * 那么那个字节就该是1xxxxxxx，说明不是单字节字符，那就应该接着向前判断
-     * 如果相与后是零，那它就是单字节字符，后面就可以断开
-     * 0xxx xxxx -> OK
-     */
-    if (m_asciiBuf->at(lastIndex) & 0x80) {
-
-        // UTF8最大编码为4字节，因此向前搜寻三字节
-        for (int i = lastIndex; i >= 0 && ++cut < 4; --i) {//接着判断倒数第二个(cut=1)，倒数第三个(cut=2)，倒数第四个(cut=3)
-            uint8_t byte = uint8_t(m_asciiBuf->at(i));
-            if (((cut < 2) && (byte & 0xE0) == 0xC0) || //0xE0=11100000 0xC0=11000000
-                ((cut < 3) && (byte & 0xF0) == 0xE0) || //0xF0=11110000 0xE0=11100000
-                (byte & 0xF8) == 0xF0){                 //0xF8=11111000 0xF0=11110000
-                isCut = true;
-                break;
-            }
-        }
-    }
-    lastIndex -= isCut ? cut - 1 : -1;
-
-    QByteArray cutArray = m_asciiBuf->mid(lastIndex);
-    m_asciiBuf->remove(lastIndex, cut);
-    //转成utf8
-    QTextCodec *code = QTextCodec::codecForName("UTF8");
-    str = code->toUnicode(*m_asciiBuf);
-
-    m_asciiBuf->clear();
-    m_asciiBuf->append(cutArray);
-}
-
 //https://www.ruanyifeng.com/blog/2007/10/ascii_unicode_and_utf-8.html
 //关于utf8编码规则的博客。
 void Widget::arraytoutf8(QString &string,QByteArray &array){
 
-    bool iscut = false;
     int mark=0;
+    bool iscut=false;
     buf->append(array);
     int endindex = buf->length()-1;//endindex是长度减一,那么buf.at(endindex)就正好是最后一个字节
 
-
-
-    if(buf->at(endindex) & 0x80){//如果是单字节字符，就不用做任何事
-        // UTF8最大编码为4字节，因此向前搜寻三字节
-        for (int count=endindex;count>=0 && ++mark<4;count--) {
-            uint8_t byte = uint8_t(buf->at(count));//第一次:byte是倒数第二个字节 第二次是倒数第三个字节....
-            if( ((mark<2) && (byte & 0xE0) == 0xC0) || ((mark<3) && (byte & 0xF0) == 0xE0) || ((mark<4) && (byte & 0xF8) == 0xF0) ){
-                iscut = true;
-                break;//遇到以上字节就跳出循环
+    if(buf->at(endindex)&0x80){//如果最后一个字节是单字节，就不想用向下了
+        for(int count=endindex;count>=0/*不能取到buf的负索引*/&&++mark<=3/*控制向前搜索的字节数*/;--count/*第一次count是倒数第二个索引,...*/){
+            uint byte = buf->at(count);
+            if(((mark<=1) && (byte&0xE0)==0xC0) ||
+               ((mark<=2) && (byte&0xF0)==0xE0) ||
+               ((mark<=3)/*这个条件其实根本没用，留着吧*/ && (byte&0xF8)==0xF0)   ){
+                iscut=true;
+                break;
             }
         }
     }
-    if(iscut)
-        endindex-=mark-1;
-    else
-        endindex+=1;
-
-    QByteArray cutarray=buf->mid(endindex,-1);
-    buf->remove(endindex,mark);
-    string = QString::fromUtf8(*buf);//完整字符转成utf8,传到string.
-    buf->clear();
-    buf->append(cutarray);//留下字符的部分字节
-
+    int pointer;
+    if(iscut){
+        pointer=endindex-mark+1;
+    }else{
+        pointer=endindex+1;
+    }
+    QByteArray cutarray = buf->mid(pointer,-1);/*-1表示到最后*///把后面不完整的几个字节留下啊
+    buf->remove(pointer,mark);//把buf后面的字节删除
+    string = QString::fromUtf8(*buf);//用string将所有正常的字节传出去
+    buf->clear();//将buf清空后
+    buf->append(cutarray);//再把残留的字节加回来
 }
+
 //窗口关闭
 Widget::~Widget(){
     if (myserialport->isOpen()){
@@ -420,4 +377,50 @@ void Widget::refileclear(){
     refile.open(QIODevice::ReadWrite);
 }
 
+//参考
+void arrayToUTF8(QString &str/*传出字符串*/, const QByteArray &array/*串口数据数组*/)
+{
+    //下面这句添加到头文件
+    QByteArray *m_asciiBuf;
+    //下面这句在添加到初始化
+    m_asciiBuf = new QByteArray;
+    /********************/
+
+    int lastIndex, cut = 0;
+    bool isCut = false;
+    //m_asciiBuf是头文件中定义的Qbytearray型指针
+    // QByteArray *m_asciiBuf;
+
+    m_asciiBuf->append(array);//把内容加到array中
+    lastIndex = m_asciiBuf->length() - 1;//最后一个字节的位置
+
+    /* 如果m_asciiBuf最后的那个字节和1000 0000(0x80)相与后不是零，
+     * 那么那个字节就该是1xxxxxxx，说明不是单字节字符，那就应该接着向前判断
+     * 如果相与后是零，那它就是单字节字符，后面就可以断开
+     * 0xxx xxxx -> OK
+     */
+    if (m_asciiBuf->at(lastIndex) & 0x80) {
+
+        // UTF8最大编码为4字节，因此向前搜寻三字节
+        for (int i = lastIndex; i >= 0 && ++cut < 4; --i) {//接着判断倒数第二个(cut=1)，倒数第三个(cut=2)，倒数第四个(cut=3)
+            uint8_t byte = uint8_t(m_asciiBuf->at(i));
+            if (((cut < 2) && (byte & 0xE0) == 0xC0) || //0xE0=11100000 0xC0=11000000
+                ((cut < 3) && (byte & 0xF0) == 0xE0) || //0xF0=11110000 0xE0=11100000
+                (byte & 0xF8) == 0xF0){                 //0xF8=11111000 0xF0=11110000
+                isCut = true;
+                break;
+            }
+        }
+    }
+    lastIndex -= isCut ? cut - 1 : -1;
+
+    QByteArray cutArray = m_asciiBuf->mid(lastIndex);
+    m_asciiBuf->remove(lastIndex, cut);
+    //转成utf8
+    QTextCodec *code = QTextCodec::codecForName("UTF8");
+    str = code->toUnicode(*m_asciiBuf);
+
+    m_asciiBuf->clear();
+    m_asciiBuf->append(cutArray);
+}
 

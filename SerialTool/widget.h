@@ -41,16 +41,17 @@ public:
     Widget(QWidget *parent = nullptr);
     ~Widget();
     qint64 count;
+
     QFile refile;
     QFile edfile;
     void initfile();
     void refileclear();
-    QMutex mutex;
-    void arraytoutf8(QString &str,QByteArray &array);
-    void arrayToUTF8(QString &str/*返回的字符串*/, const QByteArray &array/*串口数据数组*/);
+
+
+
 private:
-    QByteArray *m_asciiBuf;//读取串口数据Buf
-    QByteArray *buf;
+    QByteArray *buf;//读取串口数据Buf
+    void arraytoutf8(QString &string, QByteArray &array);
     void RefreshPort();//刷新端口
     void OpenPort();//打开端口
     void ClosePort();//关闭端口
@@ -78,11 +79,9 @@ private:
     QComboBox *DatabitBox; //数据位
     QComboBox *StopbitBox; //停止位
     QComboBox *CheckDigitBox; //校验位
-
     QPushButton *refreshBtn;
     QPushButton *openBtn;
     QPushButton *closeBtn;
-
     QTextEdit *reinfostext;
     QTextEdit *edinfostext;
     QPushButton *seinfosBtn;
