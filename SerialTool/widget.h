@@ -50,7 +50,7 @@ public:
     void arrayToUTF8(QString &str/*返回的字符串*/, const QByteArray &array/*串口数据数组*/);
 private:
     QByteArray *m_asciiBuf;//读取串口数据Buf
-
+    QByteArray *buf;
     void RefreshPort();//刷新端口
     void OpenPort();//打开端口
     void ClosePort();//关闭端口

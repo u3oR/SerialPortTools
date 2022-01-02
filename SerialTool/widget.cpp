@@ -50,6 +50,7 @@ Widget::Widget(QWidget *parent)
 
 {
     m_asciiBuf = new QByteArray;
+    buf = new QByteArray;
     initfile();
     this->setWindowTitle(tr("串口调试工具-简陋版ヾ(•ω•`)o"));
     int width =580;double scale=0.7;
@@ -123,7 +124,6 @@ Widget::Widget(QWidget *parent)
     connect(HexseCheck,&QCheckBox::stateChanged,this,&Widget::Hexseinfos);
     connect(HexreCheck,&QCheckBox::stateChanged,this,&Widget::Hexreinfos);
     connect(myserialport,&QSerialPort::readyRead,[=]{
-
         qDebug()<<"Readinfos计数君:"<<++count;
         Readinfos();
     });
@@ -137,13 +137,17 @@ void Widget::Readinfos(){
         QString Str;//传入接收框的字符串
         array= myserialport->readAll();
         testarray=array;
+        if(!HexreCheck->isChecked()){
+//            arrayToUTF8(Str,array);//utf转码接收，可以防止乱码
+            arraytoutf8(Str,array);//这个是我写的
+            if(Str.right(1)=='\r')
+                Str.chop(1);
+            reinfostext->moveCursor(QTextCursor::End);//保证接收框的是只读的，不然会有麻烦
+            reinfostext->insertPlainText(Str);
+        }else {
+            reinfostext->append(array.toHex(' ').toUpper());
+        }
 
-        arrayToUTF8(Str,array);//utf转码接收，可以防止乱码4
-//        arraytoutf8(Str,array);//这个是我写的
-
-        reinfostext->moveCursor(QTextCursor::End);//前提要保证接收框的是只读的，不然会有麻烦
-        if(Str.right(1)=='\r') Str.chop(1);
-        reinfostext->insertPlainText(Str);
         /*注意！
          *  此处不能使用reinfostext->append(Str);
          *  "Appends a $new paragraph$ with text to the end of the text edit."
@@ -162,8 +166,7 @@ void Widget::Readinfos(){
         testarray.clear();
 }
 
-//https://www.ruanyifeng.com/blog/2007/10/ascii_unicode_and_utf-8.html
-//关于utf8编码规则的博客。
+
 void Widget::arrayToUTF8(QString &str/*传出字符串*/, const QByteArray &array/*串口数据数组*/)
 {
 
@@ -173,7 +176,7 @@ void Widget::arrayToUTF8(QString &str/*传出字符串*/, const QByteArray &arra
     // QByteArray *m_asciiBuf;
 
     m_asciiBuf->append(array);//把内容加到array中
-    /*int*/lastIndex = m_asciiBuf->length() - 1;//最后一个字节的位置
+    lastIndex = m_asciiBuf->length() - 1;//最后一个字节的位置
 
     /* 如果m_asciiBuf最后的那个字节和1000 0000(0x80)相与后不是零，
      * 那么那个字节就该是1xxxxxxx，说明不是单字节字符，那就应该接着向前判断
@@ -204,34 +207,39 @@ void Widget::arrayToUTF8(QString &str/*传出字符串*/, const QByteArray &arra
     m_asciiBuf->clear();
     m_asciiBuf->append(cutArray);
 }
-void Widget::arraytoutf8(QString &string,QByteArray &array){
-    QByteArray buf;
-    bool iscut = false;
-    int endindex =buf.length()-1;//endindex是长度减一,那么buf.at(endindex)就正好是最后一个字节
-    int mark=0;
-    buf.append(array);
 
-    if(!((buf.at(endindex) & 0x80) == 0)){//如果是单字节字符，就不用做任何事
+//https://www.ruanyifeng.com/blog/2007/10/ascii_unicode_and_utf-8.html
+//关于utf8编码规则的博客。
+void Widget::arraytoutf8(QString &string,QByteArray &array){
+
+    bool iscut = false;
+    int mark=0;
+    buf->append(array);
+    int endindex = buf->length()-1;//endindex是长度减一,那么buf.at(endindex)就正好是最后一个字节
+
+
+
+    if(buf->at(endindex) & 0x80){//如果是单字节字符，就不用做任何事
         // UTF8最大编码为4字节，因此向前搜寻三字节
-        for (int count=0;count<3;++mark,count++) {//count是for的计数器
-            uint8_t byte = (uint8_t)buf.at(endindex-mark);//第一次:byte是倒数第二个字节 第二次是倒数第三个字节....
-            if( ((count<1) && (byte & 0xE0) == 0xC0)||((count<2) && (byte & 0xF0) == 0xE0)||((count<3) && (byte & 0xF8) == 0xF0) )
-            {
+        for (int count=endindex;count>=0 && ++mark<4;count--) {
+            uint8_t byte = uint8_t(buf->at(count));//第一次:byte是倒数第二个字节 第二次是倒数第三个字节....
+            if( ((mark<2) && (byte & 0xE0) == 0xC0) || ((mark<3) && (byte & 0xF0) == 0xE0) || ((mark<4) && (byte & 0xF8) == 0xF0) ){
                 iscut = true;
                 break;//遇到以上字节就跳出循环
             }
         }
     }
-    if(iscut){
-        endindex -= mark-1;//如果是
-    }else{
-        endindex += 1;
-    }
-    QByteArray cutarray=buf.mid(endindex);
-    buf.remove(endindex,mark);//在buf中把不完整的字节删除
-    string = QString::fromUtf8(buf);//完整字符转成utf8,传到string.
-    buf.clear();
-    buf.append(cutarray);//留下字符的部分字节
+    if(iscut)
+        endindex-=mark-1;
+    else
+        endindex+=1;
+
+    QByteArray cutarray=buf->mid(endindex,-1);
+    buf->remove(endindex,mark);
+    string = QString::fromUtf8(*buf);//完整字符转成utf8,传到string.
+    buf->clear();
+    buf->append(cutarray);//留下字符的部分字节
+
 }
 //窗口关闭
 Widget::~Widget(){
