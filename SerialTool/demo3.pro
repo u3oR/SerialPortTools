@@ -8,6 +8,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
 
+
 #包含第三方串口库 (后面发现根本用不到，官方的库目前看来已经够用了)
 #include(3rd_qextserialport/3rd_qextserialport.pri)
 
@@ -46,3 +47,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 
 !isEmpty(target.path): INSTALLS += target
+
+RC_FILE += logo.rc
+
+
+RESOURCES += \
+    image.qrc
