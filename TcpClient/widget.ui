@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>598</width>
-    <height>457</height>
+    <height>449</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,7 +29,7 @@
     <string>发送</string>
    </property>
   </widget>
-  <widget class="QTextEdit" name="textEdit">
+  <widget class="QTextEdit" name="Send_textEdit">
    <property name="geometry">
     <rect>
      <x>160</x>
@@ -67,7 +67,7 @@
      <x>10</x>
      <y>210</y>
      <width>131</width>
-     <height>101</height>
+     <height>111</height>
     </rect>
    </property>
    <property name="title">
@@ -77,27 +77,46 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>30</y>
+      <y>60</y>
       <width>111</width>
-      <height>61</height>
+      <height>41</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QRadioButton" name="radioButton_Send_HEX">
+      <widget class="QRadioButton" name="radioButton_Read_HEX">
        <property name="text">
         <string>HEX</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QRadioButton" name="radioButton_Send_ASCII">
+      <widget class="QRadioButton" name="radioButton_Read_ASCII">
        <property name="text">
         <string>ASCII</string>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
     </layout>
+   </widget>
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>清空</string>
+    </property>
    </widget>
   </widget>
   <widget class="QGroupBox" name="groupBox_2">
@@ -130,6 +149,16 @@
        <property name="editable">
         <bool>true</bool>
        </property>
+       <item>
+        <property name="text">
+         <string>127.0.0.1</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>192.168.0.1</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item row="0" column="0">
@@ -137,6 +166,16 @@
        <property name="editable">
         <bool>false</bool>
        </property>
+       <item>
+        <property name="text">
+         <string>TCP Client</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>TCP Server</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item row="2" column="0">
@@ -144,6 +183,26 @@
        <property name="editable">
         <bool>true</bool>
        </property>
+       <item>
+        <property name="text">
+         <string>80</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>443</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>8000</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>5000</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item row="3" column="0">
@@ -160,7 +219,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>320</y>
+     <y>330</y>
      <width>131</width>
      <height>101</height>
     </rect>
@@ -179,16 +238,19 @@
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_3">
      <item>
-      <widget class="QRadioButton" name="radioButton_Send_HEX_3">
+      <widget class="QRadioButton" name="radioButton_Send_HEX">
        <property name="text">
         <string>HEX</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QRadioButton" name="radioButton_Send_ASCII_3">
+      <widget class="QRadioButton" name="radioButton_Send_ASCII">
        <property name="text">
         <string>ASCII</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
