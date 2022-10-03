@@ -1,5 +1,5 @@
 <p align = "center">
-	<img alt="ScrcpyWidget" src="image/logo.png" height="200px" width="200px">
+	<img alt="ScrcpyWidget" src="SerialPortTools/image/logo.png" height="200px" width="200px">
 <br><br>
 SerialPortTools是使用QT C++制作的串口调试工具Demo
 <br>
