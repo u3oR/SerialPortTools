@@ -8,16 +8,13 @@ SerialPortTools是使用QT C++制作的串口调试工具Demo
 
 ## SerialPortTools
 
-尽管目录中包含了第三方的串口库<3rd_qextserialport>，但是并未使用;
+虽然目录中包含了第三方的串口库<3rd_qextserialport>，但是并未使用;
 
 Reference是Qt官方的两个示例，加了部分注释。
 
-最后：
+目前形态：
 
-![](image/demo.png)
+![](SerialPortTools/image/demo.png)
 
-
-
-未完待续...
 
 more...
